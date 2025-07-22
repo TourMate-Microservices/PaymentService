@@ -1,0 +1,14 @@
+package domainstatus
+
+const (
+	PAYMENT_INITIATED  string = "INITIATED"  // KHỞI TẠO THANH TOÁN
+	PAYMENT_PENDING    string = "PENDING"    // CHỜ XÁC NHẬN TỪ CỔNG THANH TOÁN
+	PAYMENT_AUTHORIZED string = "AUTHORIZED" // ĐÃ ĐƯỢC ỦY QUYỀN NHƯNG CHƯA TRỪ TIỀN
+	PAYMENT_CAPTURED   string = "CAPTURED"   // ĐÃ TRỪ TIỀN THÀNH CÔNG
+	PAYMENT_PAID       string = "PAID"       // HOÀN TẤT THANH TOÁN
+	PAYMENT_FAILED     string = "FAILED"     // THANH TOÁN THẤT BẠI
+	PAYMENT_CANCELLED  string = "CANCELLED"  // BỊ HỦY BỞI NGƯỜI DÙNG HOẶC HỆ THỐNG
+	PAYMENT_REFUNDED   string = "REFUNDED"   // ĐÃ HOÀN TIỀN
+	PAYMENT_CHARGEBACK string = "CHARGEBACK" // BỊ KHIẾU NẠI HOÀN TIỀN TỪ NGÂN HÀNG
+	PAYMENT_EXPIRED    string = "EXPIRED"    // HẾT HẠN THANH TOÁN
+)

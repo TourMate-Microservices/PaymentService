@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Subject}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .status-box {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            margin: auto;
+            width: 320px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .success {
+            color: #2e7d32;
+        }
+
+        .failure {
+            color: #c62828;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .greeting {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="status-box">
+        <h3 class="greeting">Hello, {{.Username}}!</h3>
+
+        <!-- Success Message -->
+        <div class="icon success">✔️</div>
+        <h2 class="success">Transaction Successful</h2>
+        <p>Your transaction {{.TransactionId}} was processed successfully.</p>
+
+        <p>If you have any questions, feel free to contact our support team.</p>
+
+        <p>Best regards,<br>The Tourmate - PRN232 Team</p>
+    </div>
+    <div class="footer">
+        <p>© 2025 Tourmate - PRN232. All rights reserved.</p>
+        <p>If you didn't make a transaction, please ignore this email.</p>
+    </div>
+</body>
+
+</html>
