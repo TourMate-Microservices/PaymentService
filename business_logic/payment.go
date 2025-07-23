@@ -8,6 +8,8 @@ import (
 	domain_status "tourmate/payment-service/constant/domain_status"
 	mail_const "tourmate/payment-service/constant/mail_const"
 	"tourmate/payment-service/constant/noti"
+	"tourmate/payment-service/infrastructure/grpc/user"
+	"tourmate/payment-service/infrastructure/grpc/user/pb"
 	business_logic "tourmate/payment-service/interface/business_logic"
 	"tourmate/payment-service/interface/repo"
 	"tourmate/payment-service/model/dto/request"
@@ -21,12 +23,14 @@ import (
 
 type paymentService struct {
 	logger      *log.Logger
+	userService business_logic.IUserService
 	paymentRepo repo.IPaymentRepo
 }
 
-func InitializePaymentService(db *sql.DB, logger *log.Logger) business_logic.IPaymentService {
+func InitializePaymentService(db *sql.DB, userService business_logic.IUserService, logger *log.Logger) business_logic.IPaymentService {
 	return &paymentService{
 		logger:      logger,
+		userService: userService,
 		paymentRepo: repository.InitializePaymentRepo(db, logger),
 	}
 }
@@ -40,7 +44,9 @@ func GeneratePaymentService() (business_logic.IPaymentService, error) {
 		return nil, err
 	}
 
-	return InitializePaymentService(cnn, logger), nil
+	userService, _ := user.GenerateUserService(logger)
+
+	return InitializePaymentService(cnn, userService, logger), nil
 }
 
 // GetPaymentById implements businesslogic.IPaymentService.
@@ -56,6 +62,20 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 
 	req.Request.FilterProp = utils.AssignFilterProperty(req.Request.FilterProp)
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
+
+	if req.CustomerId != nil {
+		user, err := p.userService.GetUser(pb.GetUserRequest{
+			Id: int32(*req.CustomerId),
+		}, ctx)
+
+		if err != nil {
+			return response.PaginationDataResponse{}, err
+		}
+
+		if user == nil {
+			return response.PaginationDataResponse{}, errors.New(noti.GENERIC_ERROR_WARN_MSG)
+		}
+	}
 
 	data, pages, err := p.paymentRepo.GetPayments(req, ctx)
 
@@ -392,12 +412,14 @@ func (p *paymentService) CallbackPaymentSuccess(id int, ctx context.Context) (st
 	// 	return "", err
 	// }
 
-	// // Get user data
-	// user, _ := p.userRepo.GetUser(payment.UserId, ctx)
-	// var fullName string
-	// if user != nil {
-	// 	fullName = user.FullName
-	// }
+	// Get user data
+	user, err := p.userService.GetUser(pb.GetUserRequest{
+		Id: int32(payment.CustomerId),
+	}, ctx)
+
+	if err != nil {
+		return "", err
+	}
 
 	// // Create ship
 	// p.shippingRepo.CreateShipping(entity.Shipping{
@@ -413,6 +435,8 @@ func (p *paymentService) CallbackPaymentSuccess(id int, ctx context.Context) (st
 	utils.SendMail(request.SendMailRequest{
 		Body: request.MailBody{ // Mail body
 			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
+			Email:         user.Email,
+			Username:      user.Fullname,
 			TransactionId: id,
 		},
 
@@ -479,9 +503,21 @@ func (p *paymentService) CallbackPaymentCancel(id int, ctx context.Context) (str
 	// 	}
 	// }
 
+	// Get user data
+	user, err := p.userService.GetUser(pb.GetUserRequest{
+		Id: int32(payment.CustomerId),
+	}, ctx)
+
+	if err != nil {
+		return "", err
+	}
+
+	// Send mail
 	utils.SendMail(request.SendMailRequest{
 		Body: request.MailBody{ // Mail body
 			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
+			Email:         user.Email,
+			Username:      user.Fullname,
 			TransactionId: id,
 		},
 
