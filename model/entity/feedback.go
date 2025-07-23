@@ -15,7 +15,7 @@ type Feedback struct {
 }
 
 func (f Feedback) GetFeedbackTable() string {
-	return "Feedback"
+	return "feedbacks"
 }
 
 func (f Feedback) GetFeedbackLimitRecords() int {

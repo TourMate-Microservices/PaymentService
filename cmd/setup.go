@@ -30,11 +30,13 @@ func setupApiRoutes(logger *log.Logger) {
 	// Get service name
 	var service string = os.Getenv(env.SERVICE_NAME)
 
+	logger.Println(service)
+
 	// Feedback API endpoints
-	api.InitializeFeedbackHandlerRoute(server, service, apiPort)
+	api.InitializeFeedbackHandlerRoute(server, apiPort, service)
 
 	// Payment API endpoints
-	api.InitializePaymentHandlerRoute(server, service, apiPort)
+	api.InitializePaymentHandlerRoute(server, apiPort, service)
 
 	// Run server
 	if err := server.Run(":" + apiPort); err != nil {

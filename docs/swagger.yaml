@@ -158,466 +158,6 @@ info:
   title: Tourmate - Feedback Service API
   version: "1.0"
 paths:
-  /api/v1/feedbacks:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: Remove Feedback Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/request.RemoveFeedbackRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Remove a feedback
-      tags:
-      - feedbacks
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a paginated list of feedbacks with optional filters
-      parameters:
-      - description: Page number
-        in: query
-        name: page_number
-        type: integer
-      - description: Search keyword
-        in: query
-        name: keyword
-        type: string
-      - description: Filter property
-        in: query
-        name: filter_prop
-        type: string
-      - description: Sort order (ASC or DESC)
-        in: query
-        name: order
-        type: string
-      - description: Rating
-        in: query
-        name: rating
-        type: integer
-      - description: The owner ID of this feedback
-        in: query
-        name: customer_id
-        type: integer
-      - description: Tour guide ID
-        in: query
-        name: tour_guide_id
-        type: integer
-      - description: Invoice ID
-        in: query
-        name: invoice_id
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.PaginationDataResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all feedbacks
-      tags:
-      - feedbacks
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Create Feedback Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/request.CreateFeedbackRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Create a new feedback
-      tags:
-      - feedbacks
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Update Feedback Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/request.UpdateFeedbackRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Update an existing feedback
-      tags:
-      - feedbacks
-  /api/v1/feedbacks/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Feedback ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.Feedback'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Get a single feedback by ID
-      tags:
-      - feedbacks
-  /api/v1/feedbacks/user/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve feedbacks filtered by customer ID
-      parameters:
-      - description: Customer ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Page number
-        in: query
-        name: page_number
-        type: integer
-      - description: Search keyword
-        in: query
-        name: keyword
-        type: string
-      - description: Filter property
-        in: query
-        name: filter_prop
-        type: string
-      - description: Sort order (ASC or DESC)
-        in: query
-        name: order
-        type: string
-      - description: Rating
-        in: query
-        name: rating
-        type: integer
-      - description: Tour guide ID
-        in: query
-        name: tour_guide_id
-        type: integer
-      - description: Invoice ID
-        in: query
-        name: invoice_id
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.PaginationDataResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Get feedbacks by user
-      tags:
-      - feedbacks
-  /api/v1/payments:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a paginated list of payments
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Payment status
-        in: query
-        name: status
-        type: string
-      - description: Payment method
-        in: query
-        name: method
-        type: string
-      - description: User ID
-        in: query
-        name: user_id
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.PaginationDataResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all payments
-      tags:
-      - payments
-  /api/v1/payments/{id}:
-    get:
-      description: Retrieve a single payment record by its ID
-      parameters:
-      - description: Payment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.Payment'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Get payment by ID
-      tags:
-      - payments
-  /api/v1/payments/callback-cancel/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Handles redirect or callback after canceled payment
-      parameters:
-      - description: Payment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      summary: Callback after canceled payment
-      tags:
-      - payments
-  /api/v1/payments/callback-success/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Handles redirect or callback after successful payment
-      parameters:
-      - description: Payment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      summary: Callback after successful payment
-      tags:
-      - payments
-  /api/v1/payments/customer/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of payments made by a specific customer
-      parameters:
-      - description: Customer ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Page number
-        in: query
-        name: page_number
-        type: integer
-      - description: Search keyword
-        in: query
-        name: keyword
-        type: string
-      - description: Filter property (e.g. date, price)
-        in: query
-        name: filter_prop
-        type: string
-      - description: Sort order (ASC or DESC)
-        in: query
-        name: order
-        type: string
-      - description: Payment status (e.g. pending, paid)
-        in: query
-        name: status
-        type: string
-      - description: Payment Method (e.g. VTP, GHTK)
-        in: query
-        name: method
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.PaginationDataResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Get payments by user ID
-      tags:
-      - payments
-  /api/v1/payments/update:
-    put:
-      consumes:
-      - application/json
-      description: Update payment details
-      parameters:
-      - description: UpdatePaymentRequest
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/request.UpdatePaymentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "401":
-          description: You have no rights to access this action.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-        "500":
-          description: There is something wrong in the system during the process.
-            Please try again later.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      security:
-      - BearerAuth: []
-      summary: Update a payment record
-      tags:
-      - payments
   /api/v1/platform-feedbacks:
     get:
       consumes:
@@ -807,6 +347,466 @@ paths:
       summary: Get platform feedbacks by user
       tags:
       - platform-feedbacks
+  /payment-service/api/v1/feedbacks:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Remove Feedback Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RemoveFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a feedback
+      tags:
+      - feedbacks
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of feedbacks with optional filters
+      parameters:
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      - description: Search keyword
+        in: query
+        name: keyword
+        type: string
+      - description: Filter property
+        in: query
+        name: filter_prop
+        type: string
+      - description: Sort order (ASC or DESC)
+        in: query
+        name: order
+        type: string
+      - description: Rating
+        in: query
+        name: rating
+        type: integer
+      - description: The owner ID of this feedback
+        in: query
+        name: customer_id
+        type: integer
+      - description: Tour guide ID
+        in: query
+        name: tour_guide_id
+        type: integer
+      - description: Invoice ID
+        in: query
+        name: invoice_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaginationDataResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all feedbacks
+      tags:
+      - feedbacks
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create Feedback Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new feedback
+      tags:
+      - feedbacks
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update Feedback Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an existing feedback
+      tags:
+      - feedbacks
+  /payment-service/api/v1/feedbacks/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Feedback ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Feedback'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a single feedback by ID
+      tags:
+      - feedbacks
+  /payment-service/api/v1/feedbacks/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve feedbacks filtered by customer ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      - description: Search keyword
+        in: query
+        name: keyword
+        type: string
+      - description: Filter property
+        in: query
+        name: filter_prop
+        type: string
+      - description: Sort order (ASC or DESC)
+        in: query
+        name: order
+        type: string
+      - description: Rating
+        in: query
+        name: rating
+        type: integer
+      - description: Tour guide ID
+        in: query
+        name: tour_guide_id
+        type: integer
+      - description: Invoice ID
+        in: query
+        name: invoice_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaginationDataResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get feedbacks by user
+      tags:
+      - feedbacks
+  /payment-service/api/v1/payments:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of payments
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Payment status
+        in: query
+        name: status
+        type: string
+      - description: Payment method
+        in: query
+        name: method
+        type: string
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaginationDataResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all payments
+      tags:
+      - payments
+  /payment-service/api/v1/payments/{id}:
+    get:
+      description: Retrieve a single payment record by its ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Payment'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get payment by ID
+      tags:
+      - payments
+  /payment-service/api/v1/payments/callback-cancel/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Handles redirect or callback after canceled payment
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      summary: Callback after canceled payment
+      tags:
+      - payments
+  /payment-service/api/v1/payments/callback-success/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Handles redirect or callback after successful payment
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      summary: Callback after successful payment
+      tags:
+      - payments
+  /payment-service/api/v1/payments/customer/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of payments made by a specific customer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      - description: Search keyword
+        in: query
+        name: keyword
+        type: string
+      - description: Filter property (e.g. date, price)
+        in: query
+        name: filter_prop
+        type: string
+      - description: Sort order (ASC or DESC)
+        in: query
+        name: order
+        type: string
+      - description: Payment status (e.g. pending, paid)
+        in: query
+        name: status
+        type: string
+      - description: Payment Method (e.g. VTP, GHTK)
+        in: query
+        name: method
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaginationDataResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get payments by user ID
+      tags:
+      - payments
+  /payment-service/api/v1/payments/update:
+    put:
+      consumes:
+      - application/json
+      description: Update payment details
+      parameters:
+      - description: UpdatePaymentRequest
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdatePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a payment record
+      tags:
+      - payments
 schemes:
 - http
 - https

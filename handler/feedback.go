@@ -28,7 +28,7 @@ import (
 // @Param        invoice_id  query int false "Invoice ID"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /api/v1/feedbacks [get]
+// @Router       /payment-service/api/v1/feedbacks [get]
 func GetFeedbacks(ctx *gin.Context) {
 	var request request.GetFeedbacksRequest
 	if ctx.ShouldBindQuery(&request) != nil {
@@ -70,7 +70,7 @@ func GetFeedbacks(ctx *gin.Context) {
 // @Param        invoice_id  query int false "Invoice ID"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /api/v1/feedbacks/user/{id} [get]
+// @Router       /payment-service/api/v1/feedbacks/user/{id} [get]
 func GetFeedbacksByUser(ctx *gin.Context) {
 	var request request.GetFeedbacksRequest
 	if ctx.ShouldBindQuery(&request) != nil {
@@ -108,7 +108,7 @@ func GetFeedbacksByUser(ctx *gin.Context) {
 // @Param        id   path int true "Feedback ID"
 // @Success      200 {object} entity.Feedback
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /api/v1/feedbacks/{id} [get]
+// @Router       /payment-service/api/v1/feedbacks/{id} [get]
 func GetFeedbackById(ctx *gin.Context) {
 	service, err := business_logic.GenerateFeedbackService()
 	if err != nil {
@@ -140,7 +140,7 @@ func GetFeedbackById(ctx *gin.Context) {
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router       /api/v1/feedbacks [post]
+// @Router       /payment-service/api/v1/feedbacks [post]
 func CreateFeedback(ctx *gin.Context) {
 	var request request.CreateFeedbackRequest
 	if ctx.ShouldBindJSON(&request) != nil {
@@ -172,7 +172,7 @@ func CreateFeedback(ctx *gin.Context) {
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router       /api/v1/feedbacks [put]
+// @Router       /payment-service/api/v1/feedbacks [put]
 func UpdateFeedback(ctx *gin.Context) {
 	var request request.UpdateFeedbackRequest
 	if ctx.ShouldBindJSON(&request) != nil {
@@ -204,7 +204,7 @@ func UpdateFeedback(ctx *gin.Context) {
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router       /api/v1/feedbacks [delete]
+// @Router       /payment-service/api/v1/feedbacks [delete]
 func RemoveFeedback(ctx *gin.Context) {
 	var request request.RemoveFeedbackRequest
 	if ctx.ShouldBindJSON(&request) != nil {

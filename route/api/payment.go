@@ -9,7 +9,7 @@ import (
 
 func InitializePaymentHandlerRoute(server *gin.Engine, port, service string) {
 	//Context path
-	var contextPath string = service + "api/v1/payments"
+	var contextPath string = service + "/api/v1/payments"
 
 	// Define Payment endpoints with admin required
 	var adminAuthGroup = server.Group(contextPath, middleware.Authorize, middleware.AdminAuthorization)

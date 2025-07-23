@@ -26,7 +26,7 @@ import (
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router /api/v1/payments [get]
+// @Router /payment-service/api/v1/payments [get]
 func GetAllPayments(ctx *gin.Context) {
 	var request request.GetPaymentsRequest
 	if ctx.ShouldBindQuery(&request) != nil {
@@ -62,7 +62,7 @@ func GetAllPayments(ctx *gin.Context) {
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router /api/v1/payments/{id} [get]
+// @Router /payment-service/api/v1/payments/{id} [get]
 func GetPaymentById(ctx *gin.Context) {
 	service, err := business_logic.GeneratePaymentService()
 	if err != nil {
@@ -101,7 +101,7 @@ func GetPaymentById(ctx *gin.Context) {
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router /api/v1/payments/customer/{id} [get]
+// @Router /payment-service/api/v1/payments/customer/{id} [get]
 func GetPaymentsByUser(ctx *gin.Context) {
 	var request request.GetPaymentsRequest
 	if ctx.ShouldBindQuery(&request) != nil {
@@ -142,7 +142,7 @@ func GetPaymentsByUser(ctx *gin.Context) {
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router /api/v1/payments/update [put]
+// @Router /payment-service/api/v1/payments/update [put]
 func UpdatePayment(ctx *gin.Context) {
 	var request request.UpdatePaymentRequest
 	if ctx.ShouldBindJSON(&request) != nil {
@@ -171,7 +171,7 @@ func UpdatePayment(ctx *gin.Context) {
 // @Produce      json
 // @Param        id path int true "Payment ID"
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /api/v1/payments/callback-success/{id} [get]
+// @Router       /payment-service/api/v1/payments/callback-success/{id} [get]
 func CallbackPaymentSuccess(ctx *gin.Context) {
 	service, err := business_logic.GeneratePaymentService()
 	if err != nil {
@@ -200,7 +200,7 @@ func CallbackPaymentSuccess(ctx *gin.Context) {
 // @Produce      json
 // @Param        id path int true "Payment ID"
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /api/v1/payments/callback-cancel/{id} [get]
+// @Router       /payment-service/api/v1/payments/callback-cancel/{id} [get]
 func CallbackPaymentCancel(ctx *gin.Context) {
 	service, err := business_logic.GeneratePaymentService()
 	if err != nil {
