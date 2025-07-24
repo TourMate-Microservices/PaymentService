@@ -29,7 +29,7 @@ func setupApiRoutes(logger *log.Logger) {
 	// Get API port
 	var apiPort string = os.Getenv(env.API_PORT)
 
-	// Set up swagger
+	// Set up swagger FIRST (before any auth middleware)
 	setupSwagger(server, apiPort)
 
 	// Get service name
@@ -57,7 +57,7 @@ func setupSwagger(server *gin.Engine, port string) {
 	docs.SwaggerInfo.Host = "localhost:" + port
 
 	//Add swagger route
-	server.GET("swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
+	server.GET("/payment-service/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
 }
 
 func setupGrpcRoutes(logger *log.Logger) {
