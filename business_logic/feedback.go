@@ -3,8 +3,12 @@ package businesslogic
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"time"
+	"tourmate/payment-service/constant/noti"
+	"tourmate/payment-service/infrastructure/grpc/user"
+	"tourmate/payment-service/infrastructure/grpc/user/pb"
 	business_logic "tourmate/payment-service/interface/business_logic"
 	"tourmate/payment-service/interface/repo"
 	"tourmate/payment-service/model/dto/request"
@@ -18,12 +22,14 @@ import (
 
 type feedbackService struct {
 	logger       *log.Logger
+	userService  business_logic.IUserService
 	feedbackRepo repo.IFeedbackRepo
 }
 
-func InitializeFeedbackService(db *sql.DB, logger *log.Logger) business_logic.IFeedbackService {
+func InitializeFeedbackService(db *sql.DB, userService business_logic.IUserService, logger *log.Logger) business_logic.IFeedbackService {
 	return &feedbackService{
 		logger:       logger,
+		userService:  userService,
 		feedbackRepo: repository.InitializeFeedbackRepo(db, logger),
 	}
 }
@@ -37,12 +43,25 @@ func GenerateFeedbackService() (business_logic.IFeedbackService, error) {
 		return nil, err
 	}
 
-	return InitializeFeedbackService(dbCnn, logger), nil
+	userService, _ := user.GenerateUserService(logger)
+
+	return InitializeFeedbackService(dbCnn, userService, logger), nil
 }
 
 // CreateFeedback implements businesslogic.IFeedbackService.
 func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error {
 	// Verify user data (implement later)
+	user, err := f.userService.GetUser(pb.GetUserRequest{
+		Id: int32(req.CustomerId),
+	}, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	if user == nil {
+		return errors.New(noti.GENERIC_ERROR_WARN_MSG)
+	}
 
 	// Insert to database
 	var curTime time.Time = time.Now()

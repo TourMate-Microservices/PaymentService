@@ -4,8 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
+	"os"
+	"time"
 	domain_status "tourmate/payment-service/constant/domain_status"
+	payment_env "tourmate/payment-service/constant/env/payment"
 	mail_const "tourmate/payment-service/constant/mail_const"
 	"tourmate/payment-service/constant/noti"
 	"tourmate/payment-service/infrastructure/grpc/user"
@@ -18,7 +22,12 @@ import (
 	"tourmate/payment-service/repository"
 	"tourmate/payment-service/repository/db"
 	db_server "tourmate/payment-service/repository/db_server"
+
+	payment_method "tourmate/payment-service/constant/payment_method"
+
 	"tourmate/payment-service/utils"
+
+	"github.com/payOSHQ/payos-lib-golang"
 )
 
 type paymentService struct {
@@ -110,160 +119,59 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 	return p.paymentRepo.UpdatePayment(*payment, ctx)
 }
 
-// // CreatePayment implements businesslogic.IPaymentService.
-// func (p *paymentService) CreatePaymentThroughCart(req request.CreatePaymentThroughCartRequest, ctx context.Context) (string, error) {
-// 	var errRes error = errors.New(noti.GENERIC_ERROR_WARN_MSG)
+// CreatePayment implements businesslogic.IPaymentService.
+func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (string, error) {
+	var errRes error = errors.New(noti.GENERIC_ERROR_WARN_MSG)
 
-// 	if !isEntityExist(p.userRepo, req.UserId, id_type, ctx) {
-// 		return "", errRes
-// 	}
+	user, err := p.userService.GetUser(pb.GetUserRequest{
+		Id: int32(req.CustomerId),
+	}, ctx)
 
-// 	cart, _, err := p.cartRepo.GetCart(req.UserId, ctx)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	if err != nil {
+		return "", err
+	}
 
-// 	// No items in cart but execute payment
-// 	if cart == nil {
-// 		return "", errRes
-// 	}
+	if user == nil {
+		return "", errRes
+	}
 
-// 	var itemsInCart []response.CartItem = utils.JsonStringToObject[[]response.CartItem](cart.Items)
-// 	var totalAmount float64
-// 	var items []payos.Item
-// 	var invetories []entity.ProductInventory
-// 	var formatItems []response.CartItem
+	paymentId, err := p.paymentRepo.CreatePaymentWithScopeId(entity.Payment{
+		CustomerId:    req.CustomerId,
+		InvoiceId:     req.InvoiceId,
+		Price:         req.Price,
+		PaymentMethod: req.PaymentMethod,
+		Status:        domain_status.PAYMENT_PENDING,
+		CreatedAt:     time.Now(),
+	}, ctx)
 
-// 	for _, prod := range req.Items {
-// 		// Item not existed in cart
-// 		if !strings.Contains(cart.Items, prod.ProductId) {
-// 			return "", errRes
-// 		}
+	if err != nil {
+		return "", err
+	}
 
-// 		inventory, err := p.invetoryRepo.GetProductInventory(prod.ProductId, ctx)
-// 		if err != nil {
-// 			return "", err
-// 		}
+	// Create transaction url
+	var orderCode = utils.GenerateNumber()
+	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
+		OrderCode: int64(orderCode),
+		Amount:    int(req.Price),
+		Items: []payos.Item{
+			{
+				Name:     "",
+				Quantity: 1,
+				Price:    int(req.Price),
+			},
+		},
+		Description: fmt.Sprint(orderCode),
+		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS) + fmt.Sprint(paymentId),
+		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL) + fmt.Sprint(paymentId),
+	})
 
-// 		if inventory == nil {
-// 			return "", errRes
-// 		}
+	if err != nil {
+		p.logger.Println(fmt.Sprintf(noti.PAYMENT_GENERATE_TRANSACTION_URL_ERR_MSG, payment_method.PAYOS) + err.Error())
+		return "", errors.New(noti.INTERNALL_ERR_MSG)
+	}
 
-// 		product, err := p.productRepo.GetProductById(prod.ProductId, ctx)
-// 		if err != nil {
-// 			return "", err
-// 		}
-
-// 		if product == nil {
-// 			return "", errRes
-// 		}
-
-// 		if inventory.CurrentQuantity < int64(prod.Quantity) {
-// 			return "", errRes
-// 		}
-
-// 		inventory.CurrentQuantity -= int64(prod.Quantity)
-// 		totalAmount += float64(prod.Quantity) * product.Price
-// 		invetories = append(invetories, *inventory)
-
-// 		items = append(items, payos.Item{
-// 			Name:     product.ProductName,
-// 			Quantity: prod.Quantity,
-// 			Price:    int(product.Price),
-// 		})
-
-// 		formatItems = append(formatItems, response.CartItem{
-// 			ProductId: prod.ProductId,
-// 			Name:      product.ProductName,
-// 			ImageUrl:  product.Image,
-// 			Quantity:  prod.Quantity,
-// 			Price:     product.Price,
-// 			Currency:  product.Currency,
-// 		})
-
-// 		for index, item := range itemsInCart {
-// 			if item.ProductId == prod.ProductId {
-// 				item.Quantity -= prod.Quantity
-// 				if item.Quantity <= 0 { // Remove item from cart
-// 					itemsInCart = append(itemsInCart[:index], itemsInCart[index+1:]...)
-// 				}
-
-// 				break
-// 			}
-// 		}
-// 	}
-
-// 	var paymentId string = utils.GenerateId()
-// 	var orderCode int = utils.GenerateNumber()
-
-// 	// Create transaction url
-// 	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
-// 		OrderCode:   int64(orderCode),
-// 		Amount:      int(totalAmount),
-// 		Items:       items,
-// 		Description: fmt.Sprint(orderCode),
-// 		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS) + paymentId,
-// 		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL) + paymentId,
-// 	})
-
-// 	if err != nil {
-// 		p.logger.Println("Err: ", err.Error())
-// 		return "", errors.New(noti.INTERNALL_ERR_MSG)
-// 	}
-
-// 	// Update product inventories
-// 	for _, inventory := range invetories {
-// 		if err := p.invetoryRepo.UpdateProductInventory(inventory, ctx); err != nil {
-// 			return "", err
-// 		}
-// 	}
-
-// 	var curTime time.Time = time.Now()
-
-// 	// No more items in cart
-// 	if len(itemsInCart) == 0 {
-// 		p.cartRepo.RemoveCart(req.UserId, ctx)
-// 	} else {
-// 		cart.UpdatedAt = curTime
-// 		cart.ExpiredAt = curTime.AddDate(0, 0, 7)
-// 		p.cartRepo.UpdateCart(*cart, ctx)
-// 	}
-
-// 	var orderId string = utils.GenerateId()
-
-// 	// Create order
-// 	if err := p.orderRepo.CreateOrder(entity.Order{
-// 		OrderId:     orderId,
-// 		UserId:      req.UserId,
-// 		Items:       utils.ObjectToJsonString(formatItems),
-// 		TotalAmount: totalAmount,
-// 		Currency:    currency.VIETNAM_DONG,
-// 		Note:        req.Note,
-// 		Status:      domain_status.ORDER_PENDING,
-// 		CreatedAt:   curTime,
-// 		UpdatedAt:   curTime,
-// 	}, ctx); err != nil {
-// 		return "", err
-// 	}
-
-// 	// Create payment
-// 	if err := p.paymentRepo.CreatePayment(entity.Payment{
-// 		PaymentId:     paymentId,
-// 		OrderId:       orderId,
-// 		UserId:        req.UserId,
-// 		TransactionId: fmt.Sprint(orderCode),
-// 		Amount:        totalAmount,
-// 		Currency:      currency.VIETNAM_DONG,
-// 		Status:        domain_status.PAYMENT_PENDING,
-// 		Method:        payment_method.PAYOS,
-// 		CreatedAt:     curTime,
-// 		UpdatedAt:     curTime,
-// 	}, ctx); err != nil {
-// 		return "", err
-// 	}
-
-// 	return data.CheckoutUrl, nil
-// }
+	return data.CheckoutUrl, nil
+}
 
 // // CreatePaymentDirect implements businesslogic.IPaymentService.
 // func (p *paymentService) CreatePaymentDirect(req request.CreatePaymentDirectRequest, ctx context.Context) (string, error) {

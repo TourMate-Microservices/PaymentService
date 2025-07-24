@@ -1,4 +1,64 @@
-# version: '3.8'
+  # version: '3.8'
+  # services:
+  #   payment-service:
+  #     build:
+  #       context: .
+  #       dockerfile: Dockerfile
+  #     ports:
+  #       - "8081:8081"
+  #     depends_on:
+  #       db:
+  #         condition: service_healthy
+  #     environment:
+  #       - DB_CNN_STR=user=postgres password=sa12345 dbname=PaymentDB sslmode=disable
+  #       - DB_HOST=db
+  #       - DB_PORT=5432
+  #     networks:
+  #       - payment-network
+
+  #   db:
+  #     image: postgres:16-alpine
+  #     environment:
+  #       - POSTGRES_USER=postgres
+  #       - POSTGRES_PASSWORD=sa12345
+  #       - POSTGRES_DB=postgres
+  #     ports:
+  #       - "5432:5432"
+  #     volumes:
+  #       - pgdata:/var/lib/postgresql/data
+  #       - ./script.sql:/docker-entrypoint-initdb.d/init.sql
+  #     networks:
+  #       - payment-network
+  #     command: >
+  #       /bin/bash -c "
+  #         # Start PostgreSQL server in the background
+  #         docker-entrypoint.sh postgres &
+  
+  #         # Wait for PostgreSQL to start
+  #         sleep 30s
+  
+  #         # Create the sonit-server database and run the initialization script
+  #         PGPASSWORD=sa12345 psql -U postgres -h localhost -c 'CREATE DATABASE \"PaymentDB\";'
+  #         PGPASSWORD=sa12345 psql -U postgres -h localhost -d PaymentDB -f /docker-entrypoint-initdb.d/init.sql
+  
+#         # Keep container running
+#         tail -f /dev/null
+#       "
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+
+# networks:
+#   payment-network:
+#     driver: bridge
+
+# volumes:
+#   pgdata:
+#     driver: local
+
+
 services:
   payment-service:
     build:
@@ -10,7 +70,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DB_CNN_STR=user=postgres password=sa12345 dbname=sonit-server sslmode=disable
+      - DB_CNN_STR=user=postgres password=sa12345 dbname=PaymentDB sslmode=disable
       - DB_HOST=db
       - DB_PORT=5432
     networks:
@@ -26,21 +86,22 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./script.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db-init:/docker-entrypoint-initdb.d
     networks:
       - payment-network
     command: >
-      /bin/bash -c "
-        # Start PostgreSQL server in the background
+      /bin/sh -c "
+        # Start PostgreSQL normally
         docker-entrypoint.sh postgres &
-        
-        # Wait for PostgreSQL to start
-        sleep 30s
-        
-        # Create the sonit-server database and run the initialization script
-        PGPASSWORD=sa12345 psql -U postgres -h localhost -c 'CREATE DATABASE \"payment-service\";'
-        PGPASSWORD=sa12345 psql -U postgres -h localhost -d ayment-service -f /docker-entrypoint-initdb.d/init.sql
-        
+        sleep 10
+
+        # Wait for DB to be ready
+        until pg_isready -U postgres; do sleep 2; done
+
+        # Create the PaymentDB and run init.sql
+        PGPASSWORD=sa12345 psql -U postgres -h localhost -c 'CREATE DATABASE "PaymentDB";'
+        PGPASSWORD=sa12345 psql -U postgres -h localhost -d PaymentDB -f /docker-entrypoint-initdb.d/init.sql
+
         # Keep container running
         tail -f /dev/null
       "

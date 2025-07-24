@@ -1,10 +1,3 @@
--- Create database
-CREATE DATABASE payment-service;
-
--- Connect to the new database
-\c payment-service
-
--- Create Account table
 CREATE TABLE feedbacks (
     feedbackId SERIAL PRIMARY KEY,
     customerId INT NOT NULL,

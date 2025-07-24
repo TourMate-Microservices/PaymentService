@@ -10,7 +10,8 @@ ENV GO111MODULE=on
 # Add git for private repositories (if needed)
 RUN apk add --no-cache git
 
-# Copy go.mod first
+# Copy go.mod firstdocker ps
+
 COPY go.mod ./
 COPY .env ./
 

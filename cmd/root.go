@@ -12,6 +12,9 @@ func Execute() {
 	// Load env
 	loadEnv(logger)
 
+	// Setup payments
+	setupPayments(logger)
+
 	// Setup API routes
 	setupApiRoutes(logger)
 

@@ -1,15 +1,20 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"tourmate/payment-service/constant/env"
+	payment_env "tourmate/payment-service/constant/env/payment"
+	"tourmate/payment-service/constant/noti"
+	payment_method "tourmate/payment-service/constant/payment_method"
 	"tourmate/payment-service/docs"
 	api "tourmate/payment-service/route/api"
 
 	_ "tourmate/payment-service/docs"
 
 	"github.com/gin-gonic/gin"
+	"github.com/payOSHQ/payos-lib-golang"
 	swagger_files "github.com/swaggo/files"
 	gin_swagger "github.com/swaggo/gin-swagger"
 )
@@ -57,4 +62,11 @@ func setupSwagger(server *gin.Engine, port string) {
 
 func setupGrpcRoutes(logger *log.Logger) {
 
+}
+
+func setupPayments(logger *log.Logger) {
+	// Payos
+	if err := payos.Key(os.Getenv(payment_env.PAYOS_CLIENT_ID), os.Getenv(payment_env.PAYOS_API_KEY), os.Getenv(payment_env.PAYOS_CHECKSUM_KEY)); err != nil {
+		logger.Println(fmt.Sprintf(noti.PAYMENT_INIT_ENV_ERR_MSG, payment_method.PAYOS) + err.Error())
+	}
 }

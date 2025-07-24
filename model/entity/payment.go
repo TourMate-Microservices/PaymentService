@@ -9,7 +9,7 @@ type Payment struct {
 	Price         float64   `json:"price"`
 	Status        string    `json:"status"`
 	PaymentMethod string    `json:"payment_method"`
-	CreatedAt     time.Time `json:"created_date"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func (p Payment) GetPaymentTable() string {

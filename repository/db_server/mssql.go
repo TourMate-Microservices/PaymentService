@@ -5,18 +5,18 @@ import (
 	"tourmate/payment-service/constant/env"
 )
 
-type postgresSql struct{}
+type msSQL struct{}
 
-func InitializePostgreSQL() ISQLServer {
-	return &postgresSql{}
+func InitializeMsSQL() ISQLServer {
+	return &msSQL{}
 }
 
 // GetCnnStr implements ISQLServer.
-func (m *postgresSql) GetCnnStr() string {
+func (m *msSQL) GetCnnStr() string {
 	return os.Getenv(env.POSTGRE_DB_CNNSTR)
 }
 
 // GetSQLServer implements ISQLServer.
-func (m *postgresSql) GetSQLServer() string {
+func (m *msSQL) GetSQLServer() string {
 	return env.POSTGRE_SERVER
 }

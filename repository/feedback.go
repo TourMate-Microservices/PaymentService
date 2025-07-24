@@ -30,7 +30,7 @@ func (f *feedbackRepo) CreateFeedback(feedback entity.Feedback, ctx context.Cont
 		"(customerId, tourGuideId, createdDate, " +
 		"content, rating, isDeleted, " +
 		"updatedAt, invoiceId) " +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8)"
+		"values (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, feedback.GetFeedbackTable()) + "CreateFeedback - "
 
 	if _, err := f.db.Exec(query, feedback.CustomerId, feedback.TourGuideId, feedback.CreatedDate,
@@ -47,7 +47,7 @@ func (f *feedbackRepo) CreateFeedback(feedback entity.Feedback, ctx context.Cont
 // GetFeedbackById implements repo.IFeedbackRepo.
 func (f *feedbackRepo) GetFeedbackById(id int, ctx context.Context) (*entity.Feedback, error) {
 	var res entity.Feedback
-	var query string = "SELECT * FROM " + res.GetFeedbackTable() + " WHERE feedbackId = $1"
+	var query string = "SELECT * FROM " + res.GetFeedbackTable() + " WHERE feedbackId = @p1"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, res.GetFeedbackTable()) + "GetFeedbackById - "
 
 	if err := f.db.QueryRow(query, id).Scan(
@@ -113,7 +113,7 @@ func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context
 // UpdateFeedback implements repo.IFeedbackRepo.
 func (f *feedbackRepo) UpdateFeedback(feedback entity.Feedback, ctx context.Context) error {
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, feedback.GetFeedbackTable()) + "Updatefeedback - "
-	var query string = "UPDATE " + feedback.GetFeedbackTable() + " SET content = $1, rating = $2, isDeleted = $3, updatedAt = $4 WHERE feedbackId = $5"
+	var query string = "UPDATE " + feedback.GetFeedbackTable() + " SET content = @p1, rating = @p2, isDeleted = @p3, updatedAt = @p4 WHERE feedbackId = @p5"
 
 	res, err := f.db.Exec(query, feedback.Content, feedback.Rating, feedback.IsDeleted, feedback.UpdatedAt, feedback.FeedbackId)
 

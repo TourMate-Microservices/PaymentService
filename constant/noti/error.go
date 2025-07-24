@@ -32,3 +32,9 @@ const (
 const (
 	GRPC_CONNECTION_ERR_MSG string = "Error while connection to %s service gRPC - "
 )
+
+// Payment
+const (
+	PAYMENT_INIT_ENV_ERR_MSG                 string = "Error while setup %s enrionment - "
+	PAYMENT_GENERATE_TRANSACTION_URL_ERR_MSG string = "Error while generating %s transaction URL - "
+)
