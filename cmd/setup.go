@@ -52,7 +52,7 @@ func setupSwagger(server *gin.Engine, port string) {
 	docs.SwaggerInfo.Host = "localhost:" + port
 
 	//Add swagger route
-	server.GET("swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
+	server.GET("/payment-service/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
 }
 
 func setupGrpcRoutes(logger *log.Logger) {
