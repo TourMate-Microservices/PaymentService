@@ -3,7 +3,6 @@ package api
 import (
 	"log"
 	"tourmate/payment-service/handler"
-	"tourmate/payment-service/utils/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +13,7 @@ func InitializeFeedbackHandlerRoute(server *gin.Engine, port, service string) {
 	log.Println(contextPath)
 
 	// Define Feedback endpoints with basic required
-	var authGroup = server.Group(contextPath, middleware.Authorize)
+	var authGroup = server.Group(contextPath)
 	authGroup.GET("", handler.GetFeedbacks)
 	authGroup.GET("/user/:id", handler.GetFeedbacksByUser)
 	authGroup.GET("/:id", handler.GetFeedbackById)
