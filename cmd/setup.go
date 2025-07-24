@@ -24,7 +24,7 @@ func setupApiRoutes(logger *log.Logger) {
 	// Get API port
 	var apiPort string = os.Getenv(env.API_PORT)
 
-	// Set up swagger
+	// Set up swagger FIRST (before any auth middleware)
 	setupSwagger(server, apiPort)
 
 	// Get service name
