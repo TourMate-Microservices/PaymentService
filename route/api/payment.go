@@ -2,7 +2,6 @@ package api
 
 import (
 	"tourmate/payment-service/handler"
-	"tourmate/payment-service/utils/middleware"
 
 	"github.com/gin-gonic/gin"
 )
