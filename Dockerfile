@@ -7,20 +7,23 @@ ENV GOPROXY=https://proxy.golang.org,direct
 ENV GOSUMDB=sum.golang.org
 ENV GO111MODULE=on
 
-# Add git for private repositories (if needed)
+# Add git and bash (optional) for private repositories or debugging
 RUN apk add --no-cache git
 
-# Copy go.mod firstdocker ps
-
+# Copy go.mod and go.sum first
 COPY go.mod ./
+COPY go.sum ./
+
+# Download dependencies (including postgres driver)
+RUN go mod tidy
+
+# Copy environment file (optional)
 COPY .env ./
 
-# Copy go.sum only if it exists
-COPY go.su[m] ./
-
-RUN go mod download
-
+# Copy the rest of the application
 COPY . .
+
+# Build the Go binary
 RUN go build -o main .
 
 # Runtime stage
@@ -28,12 +31,12 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
-# Copy the binary and .env file
+# Copy the binary and .env file from builder stage
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env .
 
-# Expose port (adjust based on your app)
+# Expose port (adjust to your app)
 EXPOSE 8081
 
-# Run the binary
+# Start the service
 CMD ["./main"]
