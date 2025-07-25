@@ -817,6 +817,57 @@
                 }
             }
         },
+        "/payment-service/api/v1/payments/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new payment and returns redirect info or confirmation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create a payment",
+                "parameters": [
+                    {
+                        "description": "Create Payment Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreatePaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payment-service/api/v1/payments/customer/{id}": {
             "get": {
                 "security": [
@@ -1054,7 +1105,7 @@
         "entity.Payment": {
             "type": "object",
             "properties": {
-                "created_date": {
+                "created_at": {
                     "type": "string"
                 },
                 "customer_id": {
@@ -1123,6 +1174,29 @@
                 },
                 "tour_guide_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.CreatePaymentRequest": {
+            "type": "object",
+            "required": [
+                "customer_id",
+                "invoice_id",
+                "payment_method",
+                "price"
+            ],
+            "properties": {
+                "customer_id": {
+                    "type": "integer"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
                 }
             }
         },

@@ -13,10 +13,10 @@ func InitializeMsSQL() ISQLServer {
 
 // GetCnnStr implements ISQLServer.
 func (m *msSQL) GetCnnStr() string {
-	return os.Getenv(env.POSTGRE_DB_CNNSTR)
+	return os.Getenv(env.MICROSOFT_SQL_DB_CNNSTR)
 }
 
 // GetSQLServer implements ISQLServer.
 func (m *msSQL) GetSQLServer() string {
-	return env.POSTGRE_SERVER
+	return env.MICROSOFT_SQL_SERVER
 }

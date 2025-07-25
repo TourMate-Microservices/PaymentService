@@ -19,6 +19,7 @@ func InitializePaymentHandlerRoute(server *gin.Engine, port, service string) {
 	var authGroup = server.Group(contextPath)
 	authGroup.GET("/customer/:id", handler.GetPaymentsByUser)
 	authGroup.GET("/:id", handler.GetPaymentById)
+	authGroup.POST("/create", handler.CreatePayment)
 
 	var norGroup = server.Group(contextPath)
 	norGroup.GET("/callback-success/:id", handler.CallbackPaymentSuccess)

@@ -5,6 +5,10 @@ import (
 	"errors"
 	"log"
 	"tourmate/payment-service/constant/noti"
+
+	_ "github.com/lib/pq"
+	_ "github.com/microsoft/go-mssqldb"
+
 	db_server "tourmate/payment-service/repository/db_server"
 )
 

@@ -67,9 +67,9 @@ func (f *feedbackRepo) GetFeedbackById(id int, ctx context.Context) (*entity.Fee
 
 // GetFeedbacks implements repo.IFeedbackRepo.
 func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context.Context) (*[]entity.Feedback, int, int, error) {
-	var res []entity.Feedback
-	var table string = res[0].GetFeedbackTable()
-	var limitRecords int = res[0].GetFeedbackLimitRecords()
+	var tmp entity.Feedback
+	var table string = tmp.GetFeedbackTable()
+	var limitRecords int = tmp.GetFeedbackLimitRecords()
 
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, table) + "GetFeedbacks - "
 	var queryCondition string = fmt.Sprintf(
@@ -89,6 +89,7 @@ func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context
 		return nil, 0, 0, errors.New(noti.INTERNALL_ERR_MSG)
 	}
 
+	var res []entity.Feedback
 	for rows.Next() {
 		var x entity.Feedback
 		if err := rows.Scan(

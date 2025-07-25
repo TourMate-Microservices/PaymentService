@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"tourmate/payment-service/constant/env"
 	payment_env "tourmate/payment-service/constant/env/payment"
@@ -10,6 +11,7 @@ import (
 	payment_method "tourmate/payment-service/constant/payment_method"
 	"tourmate/payment-service/docs"
 	api "tourmate/payment-service/route/api"
+	grpc "tourmate/payment-service/route/gRPC"
 
 	_ "tourmate/payment-service/docs"
 
@@ -19,7 +21,7 @@ import (
 	gin_swagger "github.com/swaggo/gin-swagger"
 )
 
-func setupApiRoutes(logger *log.Logger) {
+func setupApiRoutes(logger *log.Logger, service string) {
 	// Initialize gin server for API
 	var server = gin.Default()
 
@@ -30,12 +32,7 @@ func setupApiRoutes(logger *log.Logger) {
 	var apiPort string = os.Getenv(env.API_PORT)
 
 	// Set up swagger FIRST (before any auth middleware)
-	setupSwagger(server, apiPort)
-
-	// Get service name
-	var service string = os.Getenv(env.SERVICE_NAME)
-
-	logger.Println(service)
+	setupSwagger(server, service, apiPort)
 
 	// Feedback API endpoints
 	api.InitializeFeedbackHandlerRoute(server, apiPort, service)
@@ -43,13 +40,18 @@ func setupApiRoutes(logger *log.Logger) {
 	// Payment API endpoints
 	api.InitializePaymentHandlerRoute(server, apiPort, service)
 
+	// Default URL
+	server.GET("/", func(ctx *gin.Context) {
+		ctx.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/%s/swagger/index.html#", service))
+	})
+
 	// Run server
 	if err := server.Run(":" + apiPort); err != nil {
 		logger.Println("Error run service - " + err.Error())
 	}
 }
 
-func setupSwagger(server *gin.Engine, port string) {
+func setupSwagger(server *gin.Engine, service, port string) {
 	//Configure swagger info
 	docs.SwaggerInfo.Title = "Tourmate - Payment Service API"
 	docs.SwaggerInfo.Version = "1.0"
@@ -57,11 +59,11 @@ func setupSwagger(server *gin.Engine, port string) {
 	docs.SwaggerInfo.Host = "localhost:" + port
 
 	//Add swagger route
-	server.GET("/payment-service/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
+	server.GET("/"+service+"/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
 }
 
-func setupGrpcRoutes(logger *log.Logger) {
-
+func setupGrpcRoutes(logger *log.Logger, service string) {
+	grpc.InitializeGRPCRoute(logger, service)
 }
 
 func setupPayments(logger *log.Logger) {

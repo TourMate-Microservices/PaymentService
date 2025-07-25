@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+	"tourmate/payment-service/constant/env"
 	"tourmate/payment-service/utils"
 )
 
@@ -15,9 +17,12 @@ func Execute() {
 	// Setup payments
 	setupPayments(logger)
 
-	// Setup API routes
-	setupApiRoutes(logger)
+	// Get service name
+	var service string = os.Getenv(env.SERVICE_NAME)
 
 	// Setup gRPC routes
-	setupGrpcRoutes(logger)
+	go setupGrpcRoutes(logger, service)
+
+	// Setup API routes
+	setupApiRoutes(logger, service)
 }

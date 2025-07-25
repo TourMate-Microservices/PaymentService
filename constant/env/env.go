@@ -12,5 +12,11 @@ const (
 
 // gRPC port
 const (
-	USER_SERVICE_GRPC_PORT string = "USER_SERVICE_GRPC_PORT"
+	PAYMENT_SERVICE_GRPC_PORT string = "PAYMENT_SERVICE_GRPC_PORT"
+	USER_SERVICE_GRPC_PORT    string = "USER_SERVICE_GRPC_PORT"
+)
+
+// Network supported
+const (
+	NETWORK string = "NETWORK"
 )
