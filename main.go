@@ -2,9 +2,9 @@ package main
 
 import "tourmate/payment-service/cmd"
 
-// @title Tourmate - Feedback Service API
+// @title Tourmate - Payment Service API
 // @version 1.0
-// @description API for Feedback service
+// @description API for Payment service
 // @host localhost:8080
 // @BasePath /
 // @schemes http https

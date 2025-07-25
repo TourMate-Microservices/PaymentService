@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "pb/";
+
+// Request message for getting tour service rating
+message GetTourServiceRatingRequest {
+    int32 serviceId = 1;
+}
+
+// Response message for tour service rating
+message TourServiceRatingResponse {
+    double rating = 1;
+    int32 reviewCount = 2;
+}
+
+// gRPC service definition
+service PaymentService {
+    rpc GetTourServiceRating(GetTourServiceRatingRequest) returns (TourServiceRatingResponse);
+}

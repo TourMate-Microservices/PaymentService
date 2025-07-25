@@ -2,6 +2,7 @@ package request
 
 type GetFeedbacksRequest struct {
 	Request     SearchPaginationRequest `json:"request"`
+	ServiceId   *int                    `json:"service_id" form:"service_id" validate:"min=1"`
 	CustomerId  *int                    `json:"customer_id" form:"customer_id" validate:"min=1"`
 	TourGuideId *int                    `json:"tour_guide_id" form:"tour_guide_id" validate:"min=1"`
 	InvoiceId   *int                    `json:"invoice_id" form:"invoice_id" validate:"min=1"`
@@ -11,6 +12,7 @@ type GetFeedbacksRequest struct {
 
 type CreateFeedbackRequest struct {
 	CustomerId  int    `json:"customer_id" validate:"required, min=1"`
+	ServiceId   int    `json:"service_id" validate:"required, min=1"`
 	TourGuideId int    `json:"tour_guide_id" validate:"required, min=1"`
 	InvoiceId   int    `json:"invoice_id" validate:"required, min=1"`
 	Content     string `json:"content" validte:"required"`

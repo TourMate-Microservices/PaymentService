@@ -37,7 +37,7 @@ func InitializeFeedbackService(db *sql.DB, userService business_logic.IUserServi
 func GenerateFeedbackService() (business_logic.IFeedbackService, error) {
 	var logger = utils.GetLogConfig()
 
-	dbCnn, err := db.ConnectDB(logger, db_server.InitializeMsSQL())
+	dbCnn, err := db.ConnectDB(logger, db_server.InitializePostgreSQL())
 
 	if err != nil {
 		return nil, err
@@ -67,6 +67,7 @@ func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx 
 	var curTime time.Time = time.Now()
 	return f.feedbackRepo.CreateFeedback(entity.Feedback{
 		CustomerId:  req.CustomerId,
+		ServiceId:   req.ServiceId,
 		TourGuideId: req.TourGuideId,
 		InvoiceId:   req.InvoiceId,
 		Content:     req.Content,

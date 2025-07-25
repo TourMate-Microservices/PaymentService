@@ -1096,6 +1096,9 @@ const docTemplate = `{
                 "rating": {
                     "type": "integer"
                 },
+                "service_id": {
+                    "type": "integer"
+                },
                 "tour_guide_id": {
                     "type": "integer"
                 },
@@ -1159,6 +1162,7 @@ const docTemplate = `{
                 "customer_id",
                 "invoice_id",
                 "rating",
+                "service_id",
                 "tour_guide_id"
             ],
             "properties": {
@@ -1172,6 +1176,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "rating": {
+                    "type": "integer"
+                },
+                "service_id": {
                     "type": "integer"
                 },
                 "tour_guide_id": {
@@ -1339,8 +1346,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http", "https"},
-	Title:            "Tourmate - Feedback Service API",
-	Description:      "API for Feedback service",
+	Title:            "Tourmate - Payment Service API",
+	Description:      "API for Payment service",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

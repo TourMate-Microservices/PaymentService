@@ -1,0 +1,39 @@
+services:
+  payment-db:
+    image: postgres:16
+    container_name: payment-db
+    restart: always
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: sa12345
+      POSTGRES_DB: PaymentDB
+    volumes:
+      - paymentdb_data:/var/lib/postgresql/data
+      - ./payment-service/db-init/script.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - payment-net
+
+  payment-service:
+    build:
+      context: ./payment-service
+    container_name: payment-db
+    environment:
+      DB_HOST: payment-db
+      DB_PORT: 5432
+      DB_USER: sa
+      DB_PASS: sa12345
+      DB_NAME: PaymentDB
+    ports:
+      - "8081:8081"
+      - "7006:7006"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.payment-service.rule=PathPrefix(`/payment-service`)"
+      - "traefik.http.routers.payment-service.entrypoints=web"
+      - "traefik.http.services.payment-service.loadbalancer.server.port=8081"
+    depends_on:
+      - traefik
+      - payment-db
+
+volumes:
+  paymentdb_data:

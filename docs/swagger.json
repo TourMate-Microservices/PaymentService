@@ -5,8 +5,8 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "API for Feedback service",
-        "title": "Tourmate - Feedback Service API",
+        "description": "API for Payment service",
+        "title": "Tourmate - Payment Service API",
         "contact": {},
         "version": "1.0"
     },
@@ -1094,6 +1094,9 @@
                 "rating": {
                     "type": "integer"
                 },
+                "service_id": {
+                    "type": "integer"
+                },
                 "tour_guide_id": {
                     "type": "integer"
                 },
@@ -1157,6 +1160,7 @@
                 "customer_id",
                 "invoice_id",
                 "rating",
+                "service_id",
                 "tour_guide_id"
             ],
             "properties": {
@@ -1170,6 +1174,9 @@
                     "type": "integer"
                 },
                 "rating": {
+                    "type": "integer"
+                },
+                "service_id": {
                     "type": "integer"
                 },
                 "tour_guide_id": {

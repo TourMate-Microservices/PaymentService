@@ -7,6 +7,8 @@ import (
 	"os"
 	"tourmate/payment-service/constant/env"
 	"tourmate/payment-service/constant/noti"
+	"tourmate/payment-service/infrastructure/grpc/feedback"
+	"tourmate/payment-service/infrastructure/grpc/feedback/pb"
 
 	"google.golang.org/grpc"
 )
@@ -20,15 +22,9 @@ func InitializeGRPCRoute(logger *log.Logger, service string) {
 		return
 	}
 
-	// rsServer, err := role_grpc.GenerateGRPCService()
-	// if err != nil {
-	// 	logger.Println(fmt.Sprintf(noti.GrpcGenerateMsg, service) + err.Error())
-	// 	return
-	// }
-
 	var gRPCServer = grpc.NewServer()
 
-	//pb.RegisterRoleServiceServer(gRPCServer, rsServer)
+	pb.RegisterPaymentServiceServer(gRPCServer, feedback.GenerateGrpcService())
 
 	log.Println(service + " gRPC starts listening on port " + port)
 	if err := gRPCServer.Serve(listen); err != nil {

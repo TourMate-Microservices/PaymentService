@@ -5,6 +5,7 @@ import "time"
 type Feedback struct {
 	FeedbackId  int       `json:"feedback_id"`
 	CustomerId  int       `json:"customer_id"`
+	ServiceId   int       `json:"service_id"`
 	TourGuideId int       `json:"tour_guide_id"`
 	InvoiceId   int       `json:"invoice_id"`
 	Content     string    `json:"content"`

@@ -10,6 +10,8 @@ import (
 	"tourmate/payment-service/interface/repo"
 	"tourmate/payment-service/model/dto/request"
 	"tourmate/payment-service/model/entity"
+
+	_ "github.com/lib/pq"
 )
 
 type paymentRepo struct {
@@ -33,9 +35,9 @@ func (p *paymentRepo) CreatePaymentWithScopeId(payment entity.Payment, ctx conte
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, payment.GetPaymentTable()) + "CreatePaymentWithScopeId - "
 	var internalErr error = errors.New(noti.INTERNALL_ERR_MSG)
 	var query string = "INSERT INTO " + payment.GetPaymentTable() +
-		" (customerId, invoiceId, " +
-		"price, status, paymentMethod, createdAt) " +
-		"values (@p1, @p2, @p3, @p4, @p5, @p6)"
+		" (customer_id, invoice_id, " +
+		"price, status, payment_method, created_at) " +
+		"values ($1, $2, $3, $4, $5, $6)"
 
 	tx, err := p.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -68,9 +70,9 @@ func (p *paymentRepo) CreatePaymentWithScopeId(payment entity.Payment, ctx conte
 // CreatePayment implements repo.IPaymentRepo.
 func (p *paymentRepo) CreatePayment(payment entity.Payment, ctx context.Context) error {
 	var query string = "INSERT INTO " + payment.GetPaymentTable() +
-		" (customerId, invoiceId, " +
-		"price, status, paymentMethod, createdAt) " +
-		"values (@p1, @p2, @p3, @p4, @p5, @p6)"
+		" (customer_id, invoice_id, " +
+		"price, status, payment_method, created_at) " +
+		"values ($1, $2, $3, $4, $5, $6)"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, payment.GetPaymentTable()) + "CreatePayment - "
 
 	if _, err := p.db.Exec(query, payment.CustomerId, payment.InvoiceId,
@@ -91,7 +93,7 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 	var queryCondition string = "WHERE "
 	var isHavePreviousCond bool = false
 	if req.Method != "" {
-		queryCondition += fmt.Sprintf("LOWER(paymentMethod) LIKE LOWER('%%%s%%') ", req.Method)
+		queryCondition += fmt.Sprintf("LOWER(payment_method) LIKE LOWER('%%%s%%') ", req.Method)
 		isHavePreviousCond = true
 	}
 	if req.Status != "" {
@@ -107,7 +109,7 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 			queryCondition += " AND "
 		}
 
-		queryCondition += fmt.Sprintf("customerId = '%d'", *req.CustomerId)
+		queryCondition += fmt.Sprintf("customer_id = '%d'", *req.CustomerId)
 	}
 
 	if queryCondition == "WHERE" {
@@ -144,18 +146,11 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 	return &res, caculateTotalPages(totalRecords, payment_limit_records), nil
 }
 
-// [paymentId] [int] IDENTITY(1,1) NOT NULL,
-//
-//	[price] [real] NOT NULL,
-//	[status] [nvarchar](50) NOT NULL,
-//	[createdAt] [datetime] NOT NULL,
-//	[paymentMethod] [varchar](50) NOT NULL,
-//	[customerId] [int] NOT NULL,
-//	[invoiceId] [int] NULL
+// GetPaymentById implements repo.IPaymentRepo
 func (p *paymentRepo) GetPaymentById(id int, ctx context.Context) (*entity.Payment, error) {
 	var res entity.Payment
 	var table string = res.GetPaymentTable()
-	var query string = "SELECT * FROM " + table + " WHERE paymentId = @p1"
+	var query string = "SELECT * FROM " + table + " WHERE payment_id = $1"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, table) + "GetPaymentById - "
 
 	if err := p.db.QueryRow(query, id).Scan(
@@ -176,7 +171,7 @@ func (p *paymentRepo) GetPaymentById(id int, ctx context.Context) (*entity.Payme
 // UpdatePayment implements repo.IPaymentRepo.
 func (p *paymentRepo) UpdatePayment(payment entity.Payment, ctx context.Context) error {
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, payment.GetPaymentTable()) + "UpdatePayment - "
-	var query string = "UPDATE " + payment.GetPaymentTable() + " SET status = @p1,  method = @p2, updated_at = @p3 WHERE paymentId = @p4"
+	var query string = "UPDATE " + payment.GetPaymentTable() + " SET status = $1,  method = $2, updated_at = $3 WHERE payment_id = $4"
 
 	res, err := p.db.Exec(query, payment.Status, payment.PaymentMethod, payment.PaymentId)
 

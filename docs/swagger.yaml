@@ -16,6 +16,8 @@ definitions:
         type: boolean
       rating:
         type: integer
+      service_id:
+        type: integer
       tour_guide_id:
         type: integer
       updated_at:
@@ -63,12 +65,15 @@ definitions:
         type: integer
       rating:
         type: integer
+      service_id:
+        type: integer
       tour_guide_id:
         type: integer
     required:
     - customer_id
     - invoice_id
     - rating
+    - service_id
     - tour_guide_id
     type: object
   request.CreatePaymentRequest:
@@ -170,8 +175,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: API for Feedback service
-  title: Tourmate - Feedback Service API
+  description: API for Payment service
+  title: Tourmate - Payment Service API
   version: "1.0"
 paths:
   /api/v1/platform-feedbacks:

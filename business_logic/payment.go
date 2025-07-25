@@ -47,7 +47,7 @@ func InitializePaymentService(db *sql.DB, userService business_logic.IUserServic
 func GeneratePaymentService() (business_logic.IPaymentService, error) {
 	var logger = utils.GetLogConfig()
 
-	cnn, err := db.ConnectDB(logger, db_server.InitializeMsSQL())
+	cnn, err := db.ConnectDB(logger, db_server.InitializePostgreSQL())
 
 	if err != nil {
 		return nil, err
