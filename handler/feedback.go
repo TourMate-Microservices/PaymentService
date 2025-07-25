@@ -1,14 +1,19 @@
 package handler
 
 import (
+	"os"
 	"strconv"
 	business_logic "tourmate/payment-service/business_logic"
 	action_type "tourmate/payment-service/constant/action_type"
+	"tourmate/payment-service/constant/env"
+	"tourmate/payment-service/infrastructure/grpc/feedback/pb"
 	"tourmate/payment-service/model/dto/request"
 	"tourmate/payment-service/model/dto/response"
 	"tourmate/payment-service/utils"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // GetFeedbacks godoc
@@ -220,6 +225,46 @@ func RemoveFeedback(ctx *gin.Context) {
 
 	utils.ProcessResponse(response.ApiResponse{
 		ErrMsg:   service.RemoveFeedback(request, ctx),
+		Context:  ctx,
+		PostType: action_type.NON_POST,
+	})
+}
+
+// TestGrpcFeedback godoc
+// @Summary      Test gRPC call to get payment service rating
+// @Description  Calls the gRPC feedback service to retrieve average rating and total count for a tour service
+// @Tags         test-grpc
+// @Accept       json
+// @Produce      json
+// @Param        service_id query int true "Tour Service ID"
+// @Success      200 {object} pb.TourServiceRatingResponse
+// @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
+// @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
+// @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
+// @Router       /payment-service/api/v1/feedbacks/test-grpc [get]
+func TestGrpcFeedback(ctx *gin.Context) {
+	var request pb.GetTourServiceRatingRequest
+	if ctx.ShouldBindQuery(&request) != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
+		return
+	}
+
+	//cnn, err := grpc.Dial("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	// Method này ko đc thì undo commeent ở trên và thử lại
+	cnn, err := grpc.NewClient("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
+		return
+	}
+	defer cnn.Close()
+
+	res, err := pb.NewPaymentServiceClient(cnn).GetTourServiceRating(ctx, &request)
+
+	utils.ProcessResponse(response.ApiResponse{
+		Data1:    res,
+		Data2:    res,
+		ErrMsg:   err,
 		Context:  ctx,
 		PostType: action_type.NON_POST,
 	})

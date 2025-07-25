@@ -55,6 +55,13 @@ definitions:
       rating:
         type: integer
     type: object
+  pb.TourServiceRatingResponse:
+    properties:
+      rating:
+        type: number
+      reviewCount:
+        type: integer
+    type: object
   request.CreateFeedbackRequest:
     properties:
       content:
@@ -553,6 +560,41 @@ paths:
       summary: Get a single feedback by ID
       tags:
       - feedbacks
+  /payment-service/api/v1/feedbacks/test-grpc:
+    get:
+      consumes:
+      - application/json
+      description: Calls the gRPC feedback service to retrieve average rating and
+        total count for a tour service
+      parameters:
+      - description: Tour Service ID
+        in: query
+        name: service_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pb.TourServiceRatingResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      summary: Test gRPC call to get payment service rating
+      tags:
+      - test-grpc
   /payment-service/api/v1/feedbacks/user/{id}:
     get:
       consumes:

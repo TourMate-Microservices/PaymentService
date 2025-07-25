@@ -556,6 +556,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment-service/api/v1/feedbacks/test-grpc": {
+            "get": {
+                "description": "Calls the gRPC feedback service to retrieve average rating and total count for a tour service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "test-grpc"
+                ],
+                "summary": "Test gRPC call to get payment service rating",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tour Service ID",
+                        "name": "service_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pb.TourServiceRatingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payment-service/api/v1/feedbacks/user/{id}": {
             "get": {
                 "security": [
@@ -1152,6 +1202,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "rating": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pb.TourServiceRatingResponse": {
+            "type": "object",
+            "properties": {
+                "rating": {
+                    "type": "number"
+                },
+                "reviewCount": {
                     "type": "integer"
                 }
             }
