@@ -238,21 +238,16 @@ func RemoveFeedback(ctx *gin.Context) {
 // @Produce      json
 // @Param        service_id query int true "Tour Service ID"
 // @Success      200 {object} pb.TourServiceRatingResponse
-// @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
-// @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router       /payment-service/api/v1/feedbacks/test-grpc [get]
-func TestGrpcFeedback(ctx *gin.Context) {
-	var request pb.GetTourServiceRatingRequest
-	if ctx.ShouldBindQuery(&request) != nil {
-		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
-		return
-	}
-
-	//cnn, err := grpc.Dial("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
+// @Failure      401 {object} response.MessageApiResponse "You have no rights to access this action."
+// @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
+// @Failure      500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
+// @Router       /payment-service/api/v1/feedbacks/test-grpc/{id} [get]
+func TestGrpcFeedback(ctx *gin.Context) {	
+	//log.Println("localhost:%s", os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT))
+	cnn, err := grpc.Dial("localhost:" + os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	// Method này ko đc thì undo commeent ở trên và thử lại
-	cnn, err := grpc.NewClient("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// cnn, err := grpc.NewClient("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
 		return
