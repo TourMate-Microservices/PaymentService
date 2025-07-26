@@ -153,6 +153,8 @@ func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context
 	var orderCondition string = generateOrderCondition(req.Request.FilterProp, req.Request.Order)
 	var query string = generateRetrieveQuery(table, queryCondition+orderCondition, limitRecords, req.Request.Page, false)
 
+	f.logger.Println("Query: ", query)
+
 	rows, err := f.db.Query(query)
 	if err != nil {
 		f.logger.Println(errLogMsg + err.Error())

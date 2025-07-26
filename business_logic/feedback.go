@@ -67,7 +67,9 @@ func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx conte
 
 	feedbacks, pages, totalRecords, err := f.feedbackRepo.GetFeedbacks(request.GetFeedbacksRequest{
 		Request: request.SearchPaginationRequest{
-			Page: page,
+			Page:       page,
+			FilterProp: assignFilterProperty(""),
+			Order:      utils.AssignOrder(""),
 		},
 		TourGuideId: &tourGuideId,
 	}, ctx)
