@@ -24,7 +24,7 @@ services:
       DB_PASS: sa12345
       DB_NAME: PaymentDB
     ports:
-      - "8081:8081"
+      - "8090:8090"
       - "9093:9093"
     labels:
       - "traefik.enable=true"
