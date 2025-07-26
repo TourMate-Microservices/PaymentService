@@ -274,6 +274,7 @@ func TestGrpcFeedback(ctx *gin.Context) {
 // @Tags         feedbacks
 // @Accept       json
 // @Produce      json
+// @Param        id path int true "Tour Guide ID"
 // @Param        page  query int  false  "Page number for pagination (starts from 1)"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."

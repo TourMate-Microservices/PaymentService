@@ -605,6 +605,11 @@ paths:
       - application/json
       description: Retrieves a paginated list of feedbacks to a specific tour guide
       parameters:
+      - description: Tour Guide ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Page number for pagination (starts from 1)
         in: query
         name: page

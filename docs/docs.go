@@ -622,6 +622,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Tour Guide ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Page number for pagination (starts from 1)",
                         "name": "page",
                         "in": "query"
