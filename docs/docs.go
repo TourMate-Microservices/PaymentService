@@ -331,8 +331,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
+                        "description": "Page",
+                        "name": "page",
                         "in": "query"
                     },
                     {
@@ -344,7 +344,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Filter property",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
@@ -362,19 +362,19 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "The owner ID of this feedback",
-                        "name": "customer_id",
+                        "name": "customerId",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "Tour guide ID",
-                        "name": "tour_guide_id",
+                        "name": "tourGuideId",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "Invoice ID",
-                        "name": "invoice_id",
+                        "name": "invoiceId",
                         "in": "query"
                     }
                 ],
@@ -606,6 +606,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment-service/api/v1/feedbacks/tourGuide/{id}": {
+            "get": {
+                "description": "Retrieves a paginated list of feedbacks to a specific tour guide",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feedbacks"
+                ],
+                "summary": "Get feedbacks of a tour guide",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number for pagination (starts from 1)",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PaginationDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/payment-service/api/v1/feedbacks/user/{id}": {
             "get": {
                 "security": [
@@ -634,8 +671,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
+                        "description": "Page",
+                        "name": "page",
                         "in": "query"
                     },
                     {
@@ -647,7 +684,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Filter property",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
@@ -665,13 +702,13 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Tour guide ID",
-                        "name": "tour_guide_id",
+                        "name": "tourGuideId",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "Invoice ID",
-                        "name": "invoice_id",
+                        "name": "invoiceId",
                         "in": "query"
                     }
                 ],
@@ -760,20 +797,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Payment status",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "description": "Payment method",
                         "name": "method",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
+                        "description": "Customer ID",
+                        "name": "customerId",
                         "in": "query"
                     }
                 ],
@@ -955,6 +986,12 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UrlResponse"
+                        }
+                    },
                     "400": {
                         "description": "Invalid data. Please try again.",
                         "schema": {
@@ -1004,8 +1041,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
+                        "description": "Page",
+                        "name": "page",
                         "in": "query"
                     },
                     {
@@ -1017,19 +1054,13 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Filter property (e.g. date, price)",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Sort order (ASC or DESC)",
                         "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Payment status (e.g. pending, paid)",
-                        "name": "status",
                         "in": "query"
                     },
                     {
@@ -1274,29 +1305,30 @@ const docTemplate = `{
         "request.CreateFeedbackRequest": {
             "type": "object",
             "required": [
-                "customer_id",
-                "invoice_id",
+                "content",
+                "customerId",
+                "invoiceId",
                 "rating",
-                "service_id",
-                "tour_guide_id"
+                "serviceId",
+                "tourGuideId"
             ],
             "properties": {
                 "content": {
                     "type": "string"
                 },
-                "customer_id": {
+                "customerId": {
                     "type": "integer"
                 },
-                "invoice_id": {
+                "invoiceId": {
                     "type": "integer"
                 },
                 "rating": {
                     "type": "integer"
                 },
-                "service_id": {
+                "serviceId": {
                     "type": "integer"
                 },
-                "tour_guide_id": {
+                "tourGuideId": {
                     "type": "integer"
                 }
             }
@@ -1307,7 +1339,6 @@ const docTemplate = `{
                 "accountId",
                 "customerId",
                 "paymentMethod",
-                "paymentType",
                 "price"
             ],
             "properties": {
@@ -1318,9 +1349,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "paymentMethod": {
-                    "type": "string"
-                },
-                "paymentType": {
                     "type": "string"
                 },
                 "price": {
@@ -1353,14 +1381,14 @@ const docTemplate = `{
         "request.RemoveFeedbackRequest": {
             "type": "object",
             "required": [
-                "actor_id",
-                "feedback_id"
+                "actorId",
+                "feedbackId"
             ],
             "properties": {
-                "actor_id": {
+                "actorId": {
                     "type": "integer"
                 },
-                "feedback_id": {
+                "feedbackId": {
                     "type": "integer"
                 }
             }
@@ -1443,6 +1471,14 @@ const docTemplate = `{
                 },
                 "total_pages": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.UrlResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         }

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "pb/";
+
+// Request message with user ID
+message GetTourRequest {
+    int32 id = 1;
+}
+
+// Tour message
+message Tour {
+    string serviceName = 1;
+}
+
+// gRPC service definition
+service TourService {
+    rpc GetTour(GetTourRequest) returns (Tour);
+}

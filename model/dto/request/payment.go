@@ -10,7 +10,6 @@ type CreatePaymentRequest struct {
 	CustomerId    int     `json:"customerId" validate:"required, min=1"`
 	AccountId     int     `json:"accountId" validate:"required, min=1"`
 	Price         float64 `json:"price" validate:"required, min=1"`
-	PaymentType   string  `json:"paymentType" validate:"required"`
 	PaymentMethod string  `json:"paymentMethod" validate:"required"`
 }
 

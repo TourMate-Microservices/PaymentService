@@ -14,6 +14,10 @@ type MessageApiResponse struct {
 	Message string `json:"message"`
 }
 
+type UrlResponse struct {
+	Url string `json:"url"`
+}
+
 type PaginationDataResponse struct {
 	Data        interface{} `json:"data"`
 	TotalCount  int         `json:"total_count"`

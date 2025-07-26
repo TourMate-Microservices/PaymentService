@@ -8,8 +8,11 @@ import (
 	"time"
 	filter_property "tourmate/payment-service/constant/filter_property"
 	"tourmate/payment-service/constant/noti"
+	"tourmate/payment-service/infrastructure/grpc/tour"
+	tour_pb "tourmate/payment-service/infrastructure/grpc/tour/pb"
 	"tourmate/payment-service/infrastructure/grpc/user"
 	"tourmate/payment-service/infrastructure/grpc/user/pb"
+
 	business_logic "tourmate/payment-service/interface/business_logic"
 	"tourmate/payment-service/interface/repo"
 	"tourmate/payment-service/model/dto/request"
@@ -24,13 +27,15 @@ import (
 type feedbackService struct {
 	logger       *log.Logger
 	userService  business_logic.IUserService
+	tourService  business_logic.ITourService
 	feedbackRepo repo.IFeedbackRepo
 }
 
-func InitializeFeedbackService(db *sql.DB, userService business_logic.IUserService, logger *log.Logger) business_logic.IFeedbackService {
+func InitializeFeedbackService(db *sql.DB, userService business_logic.IUserService, tourService business_logic.ITourService, logger *log.Logger) business_logic.IFeedbackService {
 	return &feedbackService{
 		logger:       logger,
 		userService:  userService,
+		tourService:  tourService,
 		feedbackRepo: repository.InitializeFeedbackRepo(db, logger),
 	}
 }
@@ -45,16 +50,80 @@ func GenerateFeedbackService() (business_logic.IFeedbackService, error) {
 	}
 
 	userService, _ := user.GenerateUserService(logger)
+	tourService, _ := tour.GenerateTourService(logger)
 
-	return InitializeFeedbackService(dbCnn, userService, logger), nil
+	return InitializeFeedbackService(dbCnn, userService, tourService, logger), nil
+}
+
+// GetFeedbacksUiResponse implements businesslogic.IFeedbackService.
+func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx context.Context) (response.PaginationDataResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+
+	if tourGuideId < 1 {
+		tourGuideId = 1
+	}
+
+	feedbacks, pages, totalRecords, err := f.feedbackRepo.GetFeedbacks(request.GetFeedbacksRequest{
+		Request: request.SearchPaginationRequest{
+			Page: page,
+		},
+		TourGuideId: &tourGuideId,
+	}, ctx)
+
+	if err != nil {
+		return response.PaginationDataResponse{}, err
+	}
+
+	var data []response.FeedbackResponse
+	for _, feedback := range *feedbacks {
+		customerInfo, err := f.userService.GetUser(ctx, &pb.GetUserRequest{
+			Id: int32(feedback.CustomerId),
+		})
+
+		if err != nil {
+			return response.PaginationDataResponse{}, err
+		}
+
+		tourInfo, err := f.tourService.GetTour(ctx, &tour_pb.GetTourRequest{
+			Id: int32(feedback.ServiceId),
+		})
+
+		if err != nil {
+			return response.PaginationDataResponse{}, err
+		}
+
+		data = append(data, response.FeedbackResponse{
+			FeedbackId:  feedback.FeedbackId,
+			CustomerId:  feedback.CustomerId,
+			FullName:    customerInfo.Fullname,
+			Image:       customerInfo.Image,
+			Rating:      feedback.Rating,
+			Content:     feedback.Content,
+			CreatedDate: feedback.CreatedDate,
+			ServiceId:   feedback.ServiceId,
+			ServiceName: tourInfo.ServiceName,
+		})
+	}
+
+	return response.PaginationDataResponse{
+		Data:        data,
+		TotalCount:  totalRecords,
+		Page:        page,
+		PerPage:     entity.Feedback{}.GetFeedbackLimitRecords(),
+		TotalPages:  pages,
+		HasNext:     page < pages,
+		HasPrevious: page > 1,
+	}, err
 }
 
 // CreateFeedback implements businesslogic.IFeedbackService.
 func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error {
 	// Verify user data (implement later)
-	user, err := f.userService.GetUser(pb.GetUserRequest{
+	user, err := f.userService.GetUser(ctx, &pb.GetUserRequest{
 		Id: int32(req.CustomerId),
-	}, ctx)
+	})
 
 	if err != nil {
 		return err

@@ -19,9 +19,8 @@ import (
 // @Produce json
 // @Security BearerAuth
 // @Param        page query int false "Page number"
-// @Param        status query string false "Payment status"
 // @Param        method query string false "Payment method"
-// @Param        user_id query string false "User ID"
+// @Param        customerId query string false "Customer ID"
 // @Success 200 {object} response.PaginationDataResponse
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
@@ -91,11 +90,10 @@ func GetPaymentById(ctx *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param        id path int true "Customer ID"
-// @Param        page_number query int false "Page number"
+// @Param        page query int false "Page"
 // @Param        keyword     query string false "Search keyword"
-// @Param        filter_prop query string false "Filter property (e.g. date, price)"
+// @Param        filterProp  query string false "Filter property (e.g. date, price)"
 // @Param        order       query string false "Sort order (ASC or DESC)"
-// @Param        status       query string false "Payment status (e.g. pending, paid)"
 // @Param        method       query string false "Payment Method (e.g. VTP, GHTK)"
 // @Success 200 {object} response.PaginationDataResponse
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
@@ -245,6 +243,7 @@ func CallbackPaymentCancel(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        request body request.CreatePaymentRequest true "Create Payment Request"
+// @Success 200 {object} response.UrlResponse
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -269,6 +268,6 @@ func CreatePayment(ctx *gin.Context) {
 		Data2:    res,
 		ErrMsg:   err,
 		Context:  ctx,
-		PostType: action_type.REDIRECT,
+		PostType: action_type.NON_POST,
 	})
 }

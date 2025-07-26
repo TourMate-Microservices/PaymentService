@@ -72,9 +72,9 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
 
 	if req.CustomerId != nil {
-		user, err := p.userService.GetUser(pb.GetUserRequest{
+		user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
 			Id: int32(*req.CustomerId),
-		}, ctx)
+		})
 
 		if err != nil {
 			return response.PaginationDataResponse{}, err
@@ -114,19 +114,20 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 }
 
 // CreatePayment implements businesslogic.IPaymentService.
-func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (string, error) {
+func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (response.UrlResponse, error) {
 	var errRes error = errors.New(noti.GENERIC_ERROR_WARN_MSG)
+	var res response.UrlResponse
 
-	user, err := p.userService.GetUser(pb.GetUserRequest{
+	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
 		Id: int32(req.CustomerId),
-	}, ctx)
+	})
 
 	if err != nil {
-		return "", err
+		return res, err
 	}
 
 	if user == nil {
-		return "", errRes
+		return res, errRes
 	}
 
 	var orderCode int = utils.GenerateNumber()
@@ -157,10 +158,11 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 
 	if err != nil {
 		p.logger.Println(fmt.Sprintf(noti.PAYMENT_GENERATE_TRANSACTION_URL_ERR_MSG, payment_method.PAYOS) + err.Error())
-		return "", errors.New(noti.INTERNALL_ERR_MSG)
+		return res, errors.New(noti.INTERNALL_ERR_MSG)
 	}
 
-	return data.CheckoutUrl, nil
+	res.Url = data.CheckoutUrl
+	return res, nil
 }
 
 // // CreatePaymentDirect implements businesslogic.IPaymentService.
@@ -284,9 +286,9 @@ func (p *paymentService) CallbackPaymentSuccess(component response.PaymentCallba
 		return "", err
 	}
 	// Get user data
-	user, err := p.userService.GetUser(pb.GetUserRequest{
+	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
 		Id: int32(component.CustomerId),
-	}, ctx)
+	})
 
 	if err != nil {
 		return "", err
@@ -312,9 +314,9 @@ func (p *paymentService) CallbackPaymentSuccess(component response.PaymentCallba
 // CallbackPaymentCancel implements businesslogic.IPaymentService.
 func (p *paymentService) CallbackPaymentCancel(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
 	// Get user data
-	user, err := p.userService.GetUser(pb.GetUserRequest{
+	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
 		Id: int32(component.CustomerId),
-	}, ctx)
+	})
 
 	if err != nil {
 		return "", err

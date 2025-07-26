@@ -66,22 +66,23 @@ definitions:
     properties:
       content:
         type: string
-      customer_id:
+      customerId:
         type: integer
-      invoice_id:
+      invoiceId:
         type: integer
       rating:
         type: integer
-      service_id:
+      serviceId:
         type: integer
-      tour_guide_id:
+      tourGuideId:
         type: integer
     required:
-    - customer_id
-    - invoice_id
+    - content
+    - customerId
+    - invoiceId
     - rating
-    - service_id
-    - tour_guide_id
+    - serviceId
+    - tourGuideId
     type: object
   request.CreatePaymentRequest:
     properties:
@@ -91,15 +92,12 @@ definitions:
         type: integer
       paymentMethod:
         type: string
-      paymentType:
-        type: string
       price:
         type: number
     required:
     - accountId
     - customerId
     - paymentMethod
-    - paymentType
     - price
     type: object
   request.CreatePlatformFeedbackRequest:
@@ -119,13 +117,13 @@ definitions:
     type: object
   request.RemoveFeedbackRequest:
     properties:
-      actor_id:
+      actorId:
         type: integer
-      feedback_id:
+      feedbackId:
         type: integer
     required:
-    - actor_id
-    - feedback_id
+    - actorId
+    - feedbackId
     type: object
   request.UpdateFeedbackRequest:
     properties:
@@ -179,6 +177,11 @@ definitions:
         type: integer
       total_pages:
         type: integer
+    type: object
+  response.UrlResponse:
+    properties:
+      url:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -417,9 +420,9 @@ paths:
       - application/json
       description: Retrieve a paginated list of feedbacks with optional filters
       parameters:
-      - description: Page number
+      - description: Page
         in: query
-        name: page_number
+        name: page
         type: integer
       - description: Search keyword
         in: query
@@ -427,7 +430,7 @@ paths:
         type: string
       - description: Filter property
         in: query
-        name: filter_prop
+        name: filterProp
         type: string
       - description: Sort order (ASC or DESC)
         in: query
@@ -439,15 +442,15 @@ paths:
         type: integer
       - description: The owner ID of this feedback
         in: query
-        name: customer_id
+        name: customerId
         type: integer
       - description: Tour guide ID
         in: query
-        name: tour_guide_id
+        name: tourGuideId
         type: integer
       - description: Invoice ID
         in: query
-        name: invoice_id
+        name: invoiceId
         type: integer
       produces:
       - application/json
@@ -596,6 +599,30 @@ paths:
       summary: Test gRPC call to get payment service rating
       tags:
       - test-grpc
+  /payment-service/api/v1/feedbacks/tourGuide/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a paginated list of feedbacks to a specific tour guide
+      parameters:
+      - description: Page number for pagination (starts from 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaginationDataResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      summary: Get feedbacks of a tour guide
+      tags:
+      - feedbacks
   /payment-service/api/v1/feedbacks/user/{id}:
     get:
       consumes:
@@ -607,9 +634,9 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Page number
+      - description: Page
         in: query
-        name: page_number
+        name: page
         type: integer
       - description: Search keyword
         in: query
@@ -617,7 +644,7 @@ paths:
         type: string
       - description: Filter property
         in: query
-        name: filter_prop
+        name: filterProp
         type: string
       - description: Sort order (ASC or DESC)
         in: query
@@ -629,11 +656,11 @@ paths:
         type: integer
       - description: Tour guide ID
         in: query
-        name: tour_guide_id
+        name: tourGuideId
         type: integer
       - description: Invoice ID
         in: query
-        name: invoice_id
+        name: invoiceId
         type: integer
       produces:
       - application/json
@@ -661,17 +688,13 @@ paths:
         in: query
         name: page
         type: integer
-      - description: Payment status
-        in: query
-        name: status
-        type: string
       - description: Payment method
         in: query
         name: method
         type: string
-      - description: User ID
+      - description: Customer ID
         in: query
-        name: user_id
+        name: customerId
         type: string
       produces:
       - application/json
@@ -829,6 +852,10 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UrlResponse'
         "400":
           description: Invalid data. Please try again.
           schema:
@@ -858,9 +885,9 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Page number
+      - description: Page
         in: query
-        name: page_number
+        name: page
         type: integer
       - description: Search keyword
         in: query
@@ -868,15 +895,11 @@ paths:
         type: string
       - description: Filter property (e.g. date, price)
         in: query
-        name: filter_prop
+        name: filterProp
         type: string
       - description: Sort order (ASC or DESC)
         in: query
         name: order
-        type: string
-      - description: Payment status (e.g. pending, paid)
-        in: query
-        name: status
         type: string
       - description: Payment Method (e.g. VTP, GHTK)
         in: query

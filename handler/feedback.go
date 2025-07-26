@@ -23,14 +23,14 @@ import (
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        page_number query int false "Page number"
+// @Param        page query int false "Page"
 // @Param        keyword     query string false "Search keyword"
-// @Param        filter_prop query string false "Filter property"
+// @Param        filterProp  query string false "Filter property"
 // @Param        order       query string false "Sort order (ASC or DESC)"
 // @Param        rating      query int false "Rating"
-// @Param        customer_id query int false "The owner ID of this feedback"
-// @Param        tour_guide_id query int false "Tour guide ID"
-// @Param        invoice_id  query int false "Invoice ID"
+// @Param        customerId  query int false "The owner ID of this feedback"
+// @Param        tourGuideId query int false "Tour guide ID"
+// @Param        invoiceId   query int false "Invoice ID"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Router       /payment-service/api/v1/feedbacks [get]
@@ -66,13 +66,13 @@ func GetFeedbacks(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        id          path int  true  "Customer ID"
-// @Param        page_number query int false "Page number"
+// @Param        page query int false "Page"
 // @Param        keyword     query string false "Search keyword"
-// @Param        filter_prop query string false "Filter property"
+// @Param        filterProp query string false "Filter property"
 // @Param        order       query string false "Sort order (ASC or DESC)"
 // @Param        rating      query int false "Rating"
-// @Param        tour_guide_id query int false "Tour guide ID"
-// @Param        invoice_id  query int false "Invoice ID"
+// @Param        tourGuideId query int false "Tour guide ID"
+// @Param        invoiceId   query int false "Invoice ID"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Router       /payment-service/api/v1/feedbacks/user/{id} [get]
@@ -258,6 +258,37 @@ func TestGrpcFeedback(ctx *gin.Context) {
 	res, err := pb.NewPaymentServiceClient(cnn).GetTourServiceRating(ctx, &pb.GetTourServiceRatingRequest{
 		ServiceId: int32(id),
 	})
+
+	utils.ProcessResponse(response.ApiResponse{
+		Data1:    res,
+		Data2:    res,
+		ErrMsg:   err,
+		Context:  ctx,
+		PostType: action_type.NON_POST,
+	})
+}
+
+// GetTourGuideFeedbacks godoc
+// @Summary      Get feedbacks of a tour guide
+// @Description  Retrieves a paginated list of feedbacks to a specific tour guide
+// @Tags         feedbacks
+// @Accept       json
+// @Produce      json
+// @Param        page  query int  false  "Page number for pagination (starts from 1)"
+// @Success      200 {object} response.PaginationDataResponse
+// @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
+// @Router       /payment-service/api/v1/feedbacks/tourGuide/{id} [get]
+func GetTourGuideFeedbacks(ctx *gin.Context) {
+	service, err := business_logic.GenerateFeedbackService()
+	if err != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
+		return
+	}
+
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	tourGuideId, _ := strconv.Atoi(ctx.Param("id"))
+
+	res, err := service.GetTourGuideFeedbacks(tourGuideId, page, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,
