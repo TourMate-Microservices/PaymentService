@@ -3,20 +3,20 @@ package entity
 import "time"
 
 type Feedback struct {
-	FeedbackId  int       `json:"feedback_id"`
-	CustomerId  int       `json:"customer_id"`
-	ServiceId   int       `json:"service_id"`
-	TourGuideId int       `json:"tour_guide_id"`
-	InvoiceId   int       `json:"invoice_id"`
+	FeedbackId  int       `json:"feedbackId"`
+	CustomerId  int       `json:"customerId"`
+	TourGuideId int       `json:"tourGuideId"`
+	CreatedDate time.Time `json:"createdDate"`
 	Content     string    `json:"content"`
 	Rating      int       `json:"rating"`
-	IsDeleted   bool      `json:"is_deleted"`
-	CreatedDate time.Time `json:"created_date"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	IsDeleted   bool      `json:"isDeleted"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	InvoiceId   int       `json:"invoiceId"`
+	ServiceId   int       `json:"serviceId"`
 }
 
 func (f Feedback) GetFeedbackTable() string {
-	return "feedbacks"
+	return "Feedback"
 }
 
 func (f Feedback) GetFeedbackLimitRecords() int {

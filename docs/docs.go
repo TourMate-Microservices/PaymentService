@@ -556,7 +556,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-service/api/v1/feedbacks/test-grpc": {
+        "/payment-service/api/v1/feedbacks/test-grpc/{id}": {
             "get": {
                 "description": "Calls the gRPC feedback service to retrieve average rating and total count for a tour service",
                 "consumes": [
@@ -572,9 +572,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Tour Service ID",
-                        "name": "service_id",
-                        "in": "query",
+                        "description": "Tour service ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -805,7 +805,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-service/api/v1/payments/callback-cancel/{id}": {
+        "/payment-service/api/v1/payments/callback-cancel": {
             "get": {
                 "description": "Handles redirect or callback after canceled payment",
                 "consumes": [
@@ -821,9 +821,37 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Payment ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Customer ID",
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "accountId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Payment Method",
+                        "name": "paymentMethod",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Price of the transaction",
+                        "name": "price",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Order Code",
+                        "name": "orderCode",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -837,7 +865,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-service/api/v1/payments/callback-success/{id}": {
+        "/payment-service/api/v1/payments/callback-success": {
             "get": {
                 "description": "Handles redirect or callback after successful payment",
                 "consumes": [
@@ -853,9 +881,37 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Payment ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Customer ID",
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "accountId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Payment Method",
+                        "name": "paymentMethod",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Price of the transaction",
+                        "name": "price",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Order Code",
+                        "name": "orderCode",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -1128,31 +1184,31 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
-                "created_date": {
+                "createdDate": {
                     "type": "string"
                 },
-                "customer_id": {
+                "customerId": {
                     "type": "integer"
                 },
-                "feedback_id": {
+                "feedbackId": {
                     "type": "integer"
                 },
-                "invoice_id": {
+                "invoiceId": {
                     "type": "integer"
                 },
-                "is_deleted": {
+                "isDeleted": {
                     "type": "boolean"
                 },
                 "rating": {
                     "type": "integer"
                 },
-                "service_id": {
+                "serviceId": {
                     "type": "integer"
                 },
-                "tour_guide_id": {
+                "tourGuideId": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1160,26 +1216,24 @@ const docTemplate = `{
         "entity.Payment": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "accountId": {
+                    "type": "integer"
+                },
+                "createdAt": {
                     "type": "string"
                 },
-                "customer_id": {
+                "customerId": {
                     "type": "integer"
                 },
-                "invoice_id": {
+                "paymentId": {
+                    "description": "PaymentType   string    ` + "`" + `json:\"paymentType\"` + "`" + ` // bo^' bo? theo y' m",
                     "type": "integer"
                 },
-                "payment_id": {
-                    "type": "integer"
-                },
-                "payment_method": {
+                "paymentMethod": {
                     "type": "string"
                 },
                 "price": {
                     "type": "number"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },
@@ -1250,19 +1304,23 @@ const docTemplate = `{
         "request.CreatePaymentRequest": {
             "type": "object",
             "required": [
-                "customer_id",
-                "invoice_id",
-                "payment_method",
+                "accountId",
+                "customerId",
+                "paymentMethod",
+                "paymentType",
                 "price"
             ],
             "properties": {
-                "customer_id": {
+                "accountId": {
                     "type": "integer"
                 },
-                "invoice_id": {
+                "customerId": {
                     "type": "integer"
                 },
-                "payment_method": {
+                "paymentMethod": {
+                    "type": "string"
+                },
+                "paymentType": {
                     "type": "string"
                 },
                 "price": {
@@ -1324,17 +1382,14 @@ const docTemplate = `{
         "request.UpdatePaymentRequest": {
             "type": "object",
             "required": [
-                "payment_id"
+                "paymentId"
             ],
             "properties": {
                 "method": {
                     "type": "string"
                 },
-                "payment_id": {
+                "paymentId": {
                     "type": "integer"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },

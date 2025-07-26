@@ -4,41 +4,41 @@ definitions:
     properties:
       content:
         type: string
-      created_date:
+      createdDate:
         type: string
-      customer_id:
+      customerId:
         type: integer
-      feedback_id:
+      feedbackId:
         type: integer
-      invoice_id:
+      invoiceId:
         type: integer
-      is_deleted:
+      isDeleted:
         type: boolean
       rating:
         type: integer
-      service_id:
+      serviceId:
         type: integer
-      tour_guide_id:
+      tourGuideId:
         type: integer
-      updated_at:
+      updatedAt:
         type: string
     type: object
   entity.Payment:
     properties:
-      created_at:
+      accountId:
+        type: integer
+      createdAt:
         type: string
-      customer_id:
+      customerId:
         type: integer
-      invoice_id:
+      paymentId:
+        description: PaymentType   string    `json:"paymentType"` // bo^' bo? theo
+          y' m
         type: integer
-      payment_id:
-        type: integer
-      payment_method:
+      paymentMethod:
         type: string
       price:
         type: number
-      status:
-        type: string
     type: object
   entity.PlatformFeedback:
     properties:
@@ -85,18 +85,21 @@ definitions:
     type: object
   request.CreatePaymentRequest:
     properties:
-      customer_id:
+      accountId:
         type: integer
-      invoice_id:
+      customerId:
         type: integer
-      payment_method:
+      paymentMethod:
+        type: string
+      paymentType:
         type: string
       price:
         type: number
     required:
-    - customer_id
-    - invoice_id
-    - payment_method
+    - accountId
+    - customerId
+    - paymentMethod
+    - paymentType
     - price
     type: object
   request.CreatePlatformFeedbackRequest:
@@ -137,12 +140,10 @@ definitions:
     properties:
       method:
         type: string
-      payment_id:
+      paymentId:
         type: integer
-      status:
-        type: string
     required:
-    - payment_id
+    - paymentId
     type: object
   request.UpdatePlatformFeedbackRequest:
     properties:
@@ -560,16 +561,16 @@ paths:
       summary: Get a single feedback by ID
       tags:
       - feedbacks
-  /payment-service/api/v1/feedbacks/test-grpc:
+  /payment-service/api/v1/feedbacks/test-grpc/{id}:
     get:
       consumes:
       - application/json
       description: Calls the gRPC feedback service to retrieve average rating and
         total count for a tour service
       parameters:
-      - description: Tour Service ID
-        in: query
-        name: service_id
+      - description: Tour service ID
+        in: path
+        name: id
         required: true
         type: integer
       produces:
@@ -731,15 +732,35 @@ paths:
       summary: Get payment by ID
       tags:
       - payments
-  /payment-service/api/v1/payments/callback-cancel/{id}:
+  /payment-service/api/v1/payments/callback-cancel:
     get:
       consumes:
       - application/json
       description: Handles redirect or callback after canceled payment
       parameters:
-      - description: Payment ID
-        in: path
-        name: id
+      - description: Customer ID
+        in: query
+        name: customerId
+        required: true
+        type: integer
+      - description: Account ID
+        in: query
+        name: accountId
+        required: true
+        type: integer
+      - description: Payment Method
+        in: query
+        name: paymentMethod
+        required: true
+        type: string
+      - description: Price of the transaction
+        in: query
+        name: price
+        required: true
+        type: number
+      - description: Order Code
+        in: query
+        name: orderCode
         required: true
         type: integer
       produces:
@@ -752,15 +773,35 @@ paths:
       summary: Callback after canceled payment
       tags:
       - payments
-  /payment-service/api/v1/payments/callback-success/{id}:
+  /payment-service/api/v1/payments/callback-success:
     get:
       consumes:
       - application/json
       description: Handles redirect or callback after successful payment
       parameters:
-      - description: Payment ID
-        in: path
-        name: id
+      - description: Customer ID
+        in: query
+        name: customerId
+        required: true
+        type: integer
+      - description: Account ID
+        in: query
+        name: accountId
+        required: true
+        type: integer
+      - description: Payment Method
+        in: query
+        name: paymentMethod
+        required: true
+        type: string
+      - description: Price of the transaction
+        in: query
+        name: price
+        required: true
+        type: number
+      - description: Order Code
+        in: query
+        name: orderCode
         required: true
         type: integer
       produces:

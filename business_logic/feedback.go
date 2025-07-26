@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"time"
+	filter_property "tourmate/payment-service/constant/filter_property"
 	"tourmate/payment-service/constant/noti"
 	"tourmate/payment-service/infrastructure/grpc/user"
 	"tourmate/payment-service/infrastructure/grpc/user/pb"
@@ -37,7 +38,7 @@ func InitializeFeedbackService(db *sql.DB, userService business_logic.IUserServi
 func GenerateFeedbackService() (business_logic.IFeedbackService, error) {
 	var logger = utils.GetLogConfig()
 
-	dbCnn, err := db.ConnectDB(logger, db_server.InitializePostgreSQL())
+	dbCnn, err := db.ConnectDB(logger, db_server.InitializeMsSQL())
 
 	if err != nil {
 		return nil, err
@@ -89,7 +90,7 @@ func (f *feedbackService) GetFeedbacks(req request.GetFeedbacksRequest, ctx cont
 		req.Request.Page = 1
 	}
 
-	req.Request.FilterProp = utils.AssignFilterProperty(req.Request.FilterProp)
+	req.Request.FilterProp = assignFilterProperty(req.Request.FilterProp)
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
 
 	data, pages, totalRecords, err := f.feedbackRepo.GetFeedbacks(req, ctx)
@@ -139,4 +140,25 @@ func (f *feedbackService) UpdateFeedback(req request.UpdateFeedbackRequest, ctx 
 	feedback.UpdatedAt = time.Now()
 
 	return f.feedbackRepo.UpdateFeedback(*feedback, ctx)
+}
+
+func assignFilterProperty(filterProp string) string {
+	var res string
+
+	switch filterProp {
+	case filter_property.DATE_FILTER:
+		res = "createdDate"
+	case filter_property.ACTION_DATE_FILTER:
+		res = "date"
+	case filter_property.PRICE_FILTER:
+		res = "price"
+	case filter_property.RATE_FILTER:
+		res = "rate"
+	case filter_property.AMOUNT_FILTER:
+		res = "amount"
+	default:
+		res = "createdDate"
+	}
+
+	return res
 }

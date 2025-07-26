@@ -18,5 +18,5 @@ func InitializeFeedbackHandlerRoute(server *gin.Engine, port, service string) {
 	authGroup.POST("", handler.CreateFeedback)
 	authGroup.PUT("", handler.UpdateFeedback)
 	authGroup.DELETE("", handler.RemoveFeedback)
-	authGroup.GET("/test-grpc", handler.TestGrpcFeedback)
+	authGroup.GET("/test-grpc/:id", handler.TestGrpcFeedback)
 }

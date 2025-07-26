@@ -9,7 +9,7 @@ func AssignFilterProperty(filterProp string) string {
 
 	switch filterProp {
 	case filter_property.DATE_FILTER:
-		res = "created_at"
+		res = "createdAt"
 	case filter_property.ACTION_DATE_FILTER:
 		res = "date"
 	case filter_property.PRICE_FILTER:
@@ -19,7 +19,7 @@ func AssignFilterProperty(filterProp string) string {
 	case filter_property.AMOUNT_FILTER:
 		res = "amount"
 	default:
-		res = "created_at"
+		res = "createdAt"
 	}
 
 	return res

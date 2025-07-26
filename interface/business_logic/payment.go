@@ -14,6 +14,6 @@ type IPaymentService interface {
 	UpdatePayment(req request.UpdatePaymentRequest, ctx context.Context) error
 	CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (string, error)
 	// Callback function
-	CallbackPaymentSuccess(id int, ctx context.Context) (string, error)
-	CallbackPaymentCancel(id int, ctx context.Context) (string, error)
+	CallbackPaymentSuccess(component response.PaymentCallbackComponent, ctx context.Context) (string, error)
+	CallbackPaymentCancel(component response.PaymentCallbackComponent, ctx context.Context) (string, error)
 }

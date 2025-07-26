@@ -26,7 +26,9 @@ func generateRetrieveQuery(table, condition string, limitAmount, pageNumber int,
 		return "SELECT COUNT(*) FROM " + table + condition
 	}
 
-	return fmt.Sprintf("SELECT * FROM "+table+" LIMIT %d + OFFSET %d"+condition, limitAmount, getOffSetAmount(limitAmount, pageNumber))
+	// SELECT * FROM Payment LIMIT 10 OFFSET 0  ORDER BY created_at ASC
+
+	return fmt.Sprintf("SELECT * FROM "+table+" "+condition+" OFFSET %d ROWS FETCH NEXT %d ROWS ONLY", getOffSetAmount(limitAmount, pageNumber), limitAmount)
 }
 
 // Generate order based on demand

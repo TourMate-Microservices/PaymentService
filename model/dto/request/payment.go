@@ -3,19 +3,18 @@ package request
 type GetPaymentsRequest struct {
 	Request    SearchPaginationRequest `json:"request"`
 	Method     string                  `json:"method" form:"method"`
-	Status     string                  `json:"status" form:"status"`
-	CustomerId *int                    `json:"customer_id" form:"customer_id"`
+	CustomerId *int                    `json:"customerId" form:"customerId"`
 }
 
 type CreatePaymentRequest struct {
-	CustomerId    int     `json:"customer_id" validate:"required, min=1"`
-	InvoiceId     int     `json:"invoice_id" validate:"required, min=1"`
+	CustomerId    int     `json:"customerId" validate:"required, min=1"`
+	AccountId     int     `json:"accountId" validate:"required, min=1"`
 	Price         float64 `json:"price" validate:"required, min=1"`
-	PaymentMethod string  `json:"payment_method" validate:"required"`
+	PaymentType   string  `json:"paymentType" validate:"required"`
+	PaymentMethod string  `json:"paymentMethod" validate:"required"`
 }
 
 type UpdatePaymentRequest struct {
-	PaymentId int    `json:"payment_id" validate:"required"`
+	PaymentId int    `json:"paymentId" validate:"required"`
 	Method    string `json:"method"`
-	Status    string `json:"status"`
 }

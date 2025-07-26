@@ -20,7 +20,7 @@ func GenerateGrpcService() *feedbackGrpcService {
 func (f *feedbackGrpcService) GetTourServiceRating(ctx context.Context, req *pb.GetTourServiceRatingRequest) (*pb.TourServiceRatingResponse, error) {
 	var logger = utils.GetLogConfig()
 
-	db, err := db.ConnectDB(logger, db_server.InitializePostgreSQL())
+	db, err := db.ConnectDB(logger, db_server.InitializeMsSQL())
 	if err != nil {
 		return nil, err
 	}

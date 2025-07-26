@@ -169,19 +169,27 @@ func UpdatePayment(ctx *gin.Context) {
 // @Tags         payments
 // @Accept       json
 // @Produce      json
-// @Param        id path int true "Payment ID"
+// @Param customerId     query int     true  "Customer ID"
+// @Param accountId      query int     true  "Account ID"
+// @Param paymentMethod  query string  true  "Payment Method"
+// @Param price          query number  true  "Price of the transaction"
+// @Param orderCode      query int     true  "Order Code"
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /payment-service/api/v1/payments/callback-success/{id} [get]
+// @Router       /payment-service/api/v1/payments/callback-success [get]
 func CallbackPaymentSuccess(ctx *gin.Context) {
+	var request response.PaymentCallbackComponent
+	if ctx.ShouldBindQuery(&request) != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
+		return
+	}
+
 	service, err := business_logic.GeneratePaymentService()
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
 		return
 	}
 
-	id, _ := strconv.Atoi(ctx.Query("id"))
-
-	res, err := service.CallbackPaymentSuccess(id, ctx)
+	res, err := service.CallbackPaymentSuccess(request, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,
@@ -198,19 +206,27 @@ func CallbackPaymentSuccess(ctx *gin.Context) {
 // @Tags         payments
 // @Accept       json
 // @Produce      json
-// @Param        id path int true "Payment ID"
+// @Param customerId     query int     true  "Customer ID"
+// @Param accountId      query int     true  "Account ID"
+// @Param paymentMethod  query string  true  "Payment Method"
+// @Param price          query number  true  "Price of the transaction"
+// @Param orderCode      query int     true  "Order Code"
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /payment-service/api/v1/payments/callback-cancel/{id} [get]
+// @Router       /payment-service/api/v1/payments/callback-cancel [get]
 func CallbackPaymentCancel(ctx *gin.Context) {
+	var request response.PaymentCallbackComponent
+	if ctx.ShouldBindQuery(&request) != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
+		return
+	}
+
 	service, err := business_logic.GeneratePaymentService()
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
 		return
 	}
 
-	id, _ := strconv.Atoi(ctx.Query("id"))
-
-	res, err := service.CallbackPaymentCancel(id, ctx)
+	res, err := service.CallbackPaymentCancel(request, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,

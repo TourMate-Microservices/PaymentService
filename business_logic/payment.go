@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"time"
-	domain_status "tourmate/payment-service/constant/domain_status"
 	payment_env "tourmate/payment-service/constant/env/payment"
 	mail_const "tourmate/payment-service/constant/mail_const"
 	"tourmate/payment-service/constant/noti"
@@ -47,7 +46,7 @@ func InitializePaymentService(db *sql.DB, userService business_logic.IUserServic
 func GeneratePaymentService() (business_logic.IPaymentService, error) {
 	var logger = utils.GetLogConfig()
 
-	cnn, err := db.ConnectDB(logger, db_server.InitializePostgreSQL())
+	cnn, err := db.ConnectDB(logger, db_server.InitializeMsSQL())
 
 	if err != nil {
 		return nil, err
@@ -107,11 +106,6 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 	}
 
 	// Must validate(implement later)
-	if req.Status != "" {
-		payment.Status = req.Status
-	}
-
-	// Must validate(implement later)
 	if req.Method != "" {
 		payment.PaymentMethod = req.Method
 	}
@@ -135,34 +129,30 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 		return "", errRes
 	}
 
-	paymentId, err := p.paymentRepo.CreatePaymentWithScopeId(entity.Payment{
-		CustomerId:    req.CustomerId,
-		InvoiceId:     req.InvoiceId,
-		Price:         req.Price,
-		PaymentMethod: req.PaymentMethod,
-		Status:        domain_status.PAYMENT_PENDING,
-		CreatedAt:     time.Now(),
-	}, ctx)
+	var orderCode int = utils.GenerateNumber()
 
-	if err != nil {
-		return "", err
+	var component = response.PaymentCallbackComponent{
+		CustomerId:    req.CustomerId,
+		AccountId:     req.AccountId,
+		PaymentMethod: req.PaymentMethod,
+		Price:         req.Price,
+		OrderCode:     orderCode,
 	}
 
 	// Create transaction url
-	var orderCode = utils.GenerateNumber()
 	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
 		OrderCode: int64(orderCode),
 		Amount:    int(req.Price),
 		Items: []payos.Item{
 			{
-				Name:     "",
+				Name:     fmt.Sprint(orderCode),
 				Quantity: 1,
 				Price:    int(req.Price),
 			},
 		},
 		Description: fmt.Sprint(orderCode),
-		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS) + fmt.Sprint(paymentId),
-		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL) + fmt.Sprint(paymentId),
+		ReturnUrl:   generateCallbackUrl(component, os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS)),
+		CancelUrl:   generateCallbackUrl(component, os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL)),
 	})
 
 	if err != nil {
@@ -283,61 +273,24 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 // }
 
 // CallbackPaymentSuccess implements businesslogic.IPaymentService.
-func (p *paymentService) CallbackPaymentSuccess(id int, ctx context.Context) (string, error) {
-	var payment *entity.Payment
-	var capturedErr error
-
-	// Get payment
-	for i := 1; i <= 3; i++ {
-		payment, capturedErr = p.paymentRepo.GetPaymentById(id, ctx)
-		if capturedErr == nil {
-			break
-		}
-	}
-
-	if payment == nil {
-		return "", errors.New(noti.GENERIC_ERROR_WARN_MSG)
-	}
-
-	if capturedErr != nil {
-		return "", capturedErr
-	}
-
-	payment.Status = domain_status.PAYMENT_PAID
-	// order.Status = domain_status.ORDER_COMPLETED
-
-	// var curTime time.Time = time.Now()
-
-	// // Update payment
-	// payment.UpdatedAt = curTime
-	if err := p.paymentRepo.UpdatePayment(*payment, ctx); err != nil {
+func (p *paymentService) CallbackPaymentSuccess(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
+	if err := p.paymentRepo.CreatePayment(entity.Payment{
+		Price:         component.Price,
+		PaymentMethod: component.PaymentMethod,
+		CustomerId:    component.CustomerId,
+		AccountId:     component.AccountId,
+		CreatedAt:     time.Now(),
+	}, ctx); err != nil {
 		return "", err
 	}
-
-	// // Update order
-	// order.UpdatedAt = curTime
-	// if err := p.orderRepo.UpdateOrder(*order, ctx); err != nil {
-	// 	return "", err
-	// }
-
 	// Get user data
 	user, err := p.userService.GetUser(pb.GetUserRequest{
-		Id: int32(payment.CustomerId),
+		Id: int32(component.CustomerId),
 	}, ctx)
 
 	if err != nil {
 		return "", err
 	}
-
-	// // Create ship
-	// p.shippingRepo.CreateShipping(entity.Shipping{
-	// 	OrderId: order.OrderId,
-	// 	ShippingDetail: utils.ObjectToJsonString(response.ShippingDetail{
-	// 		RecipientName: fullName,
-	// 	}),
-	// 	CreatedAt: curTime,
-	// 	UpdatedAt: curTime,
-	// }, ctx)
 
 	// Send mail
 	utils.SendMail(request.SendMailRequest{
@@ -345,7 +298,7 @@ func (p *paymentService) CallbackPaymentSuccess(id int, ctx context.Context) (st
 			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
 			Email:         user.Email,
 			Username:      user.Fullname,
-			TransactionId: id,
+			TransactionId: component.OrderCode,
 		},
 
 		TemplatePath: mail_const.PAYMENT_CALLBACK_SUCCESS_TEMPLATE,
@@ -357,63 +310,10 @@ func (p *paymentService) CallbackPaymentSuccess(id int, ctx context.Context) (st
 }
 
 // CallbackPaymentCancel implements businesslogic.IPaymentService.
-func (p *paymentService) CallbackPaymentCancel(id int, ctx context.Context) (string, error) {
-	var payment *entity.Payment
-	var capturedErr error
-
-	// Get payment
-	for i := 1; i <= 3; i++ {
-		payment, capturedErr = p.paymentRepo.GetPaymentById(id, ctx)
-		if capturedErr == nil {
-			break
-		}
-	}
-
-	if payment == nil {
-		return "", errors.New(noti.GENERIC_ERROR_WARN_MSG)
-	}
-
-	// // Get order
-	// for i := 1; i <= 3; i++ {
-	// 	order, capturedErr = p.orderRepo.GetOrder(payment.OrderId, ctx)
-	// 	if capturedErr == nil {
-	// 		break
-	// 	}
-	// }
-
-	// if capturedErr != nil {
-	// 	return "", capturedErr
-	// }
-
-	payment.Status = domain_status.PAYMENT_CANCELLED
-	// order.Status = domain_status.ORDER_CANCELLED
-
-	// var curTime time.Time = time.Now()
-
-	// // Update payment
-	// payment.UpdatedAt = curTime
-	if err := p.paymentRepo.UpdatePayment(*payment, ctx); err != nil {
-		return "", err
-	}
-
-	// // Update order
-	// order.UpdatedAt = curTime
-	// if err := p.orderRepo.UpdateOrder(*order, ctx); err != nil {
-	// 	return "", err
-	// }
-
-	// // Refund product amount
-	// for _, item := range utils.JsonStringToObject[[]response.CartItem](order.Items) {
-	// 	inventory, _ := p.invetoryRepo.GetProductInventory(item.ProductId, ctx)
-	// 	if inventory != nil {
-	// 		inventory.CurrentQuantity += int64(item.Quantity)
-	// 		p.invetoryRepo.UpdateProductInventory(*inventory, ctx)
-	// 	}
-	// }
-
+func (p *paymentService) CallbackPaymentCancel(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
 	// Get user data
 	user, err := p.userService.GetUser(pb.GetUserRequest{
-		Id: int32(payment.CustomerId),
+		Id: int32(component.CustomerId),
 	}, ctx)
 
 	if err != nil {
@@ -426,7 +326,7 @@ func (p *paymentService) CallbackPaymentCancel(id int, ctx context.Context) (str
 			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
 			Email:         user.Email,
 			Username:      user.Fullname,
-			TransactionId: id,
+			TransactionId: component.OrderCode,
 		},
 
 		TemplatePath: mail_const.PAYMENT_CALLBACK_CANCEL_TEMPLATE,
@@ -435,4 +335,16 @@ func (p *paymentService) CallbackPaymentCancel(id int, ctx context.Context) (str
 	})
 
 	return "url-to-process-payment-page", nil
+}
+
+func generateCallbackUrl(data response.PaymentCallbackComponent, domainUrl string) string {
+	return fmt.Sprintf(
+		"%s?customerId=%d&accountId=%d&paymentMethod=%s&price=%.2f&orderCode=%d",
+		domainUrl,
+		data.CustomerId,
+		data.AccountId,
+		data.PaymentMethod,
+		data.Price,
+		data.OrderCode,
+	)
 }

@@ -28,7 +28,7 @@ func InitializeFeedbackRepo(db *sql.DB, logger *log.Logger) repo.IFeedbackRepo {
 
 // GetFeedbacksDetailByService implements repo.IFeedbackRepo.
 func (f *feedbackRepo) GetFeedbacksDetailByService(serviceId int, ctx context.Context) (float64, int, error) {
-	var query string = "SELECT AVG(rating), COUNT(*) FROM " + entity.Feedback{}.GetFeedbackTable() + " WHERE service_id = $1"
+	var query string = "SELECT AVG(rating), COUNT(*) FROM " + entity.Feedback{}.GetFeedbackTable() + " WHERE serviceId = @p1"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, entity.Feedback{}.GetFeedbackTable()) + "GetFeedbacksDetailByService - "
 
 	var avgRating sql.NullFloat64
@@ -54,10 +54,10 @@ func (f *feedbackRepo) GetFeedbacksDetailByService(serviceId int, ctx context.Co
 // CreateFeedback implements repo.IFeedbackRepo.
 func (f *feedbackRepo) CreateFeedback(feedback entity.Feedback, ctx context.Context) error {
 	var query string = "INSERT INTO " + feedback.GetFeedbackTable() +
-		" (customer_id, service_id, tour_guide_id, created_date, " +
-		"content, rating, is_deleted, " +
-		"updated_at, invoice_id) " +
-		"values ($1, $2, $3, $4, $5, $6, $7, $8)"
+		" (customerId, serviceId, tourGuideId, createdDate, " +
+		"content, rating, isDeleted, " +
+		"updatedAt, invoiceId) " +
+		"values (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, feedback.GetFeedbackTable()) + "CreateFeedback - "
 
 	if _, err := f.db.Exec(query, feedback.CustomerId, feedback.ServiceId, feedback.TourGuideId, feedback.CreatedDate,
@@ -74,12 +74,12 @@ func (f *feedbackRepo) CreateFeedback(feedback entity.Feedback, ctx context.Cont
 // GetFeedbackById implements repo.IFeedbackRepo.
 func (f *feedbackRepo) GetFeedbackById(id int, ctx context.Context) (*entity.Feedback, error) {
 	var res entity.Feedback
-	var query string = "SELECT * FROM " + res.GetFeedbackTable() + " WHERE feedback_id = $1"
+	var query string = "SELECT * FROM " + res.GetFeedbackTable() + " WHERE feedbackId = @p1"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, res.GetFeedbackTable()) + "GetFeedbackById - "
 
 	if err := f.db.QueryRow(query, id).Scan(
-		&res.FeedbackId, &res.CustomerId, &res.ServiceId, &res.TourGuideId, &res.CreatedDate,
-		&res.Content, &res.Rating, &res.IsDeleted, &res.UpdatedAt, &res.InvoiceId); err != nil {
+		&res.FeedbackId, &res.CustomerId, &res.TourGuideId, &res.CreatedDate,
+		&res.Content, &res.Rating, &res.IsDeleted, &res.UpdatedAt, &res.InvoiceId, &res.ServiceId); err != nil {
 
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -99,16 +99,63 @@ func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context
 	var limitRecords int = tmp.GetFeedbackLimitRecords()
 
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, table) + "GetFeedbacks - "
-	var queryCondition string = fmt.Sprintf(
-		" WHERE customer_id = '%d' AND tour_guide_id = '%d' AND invoice_id = '%d' LOWER(content) LIKE LOWER('%%%s%%') AND is_deleted = '%b'",
-		req.CustomerId,
-		req.TourGuideId,
-		req.InvoiceId,
-		req.Request.Keyword,
-		req.IsDeleted,
-	)
+	var queryCondition string = "WHERE "
+	var isHavePreviousCond bool = false
+
+	if req.ServiceId != nil {
+		queryCondition += fmt.Sprintf("serviceId = %d", *req.ServiceId)
+		isHavePreviousCond = true
+	}
+
+	if req.TourGuideId != nil {
+		if isHavePreviousCond {
+			queryCondition += " AND "
+		}
+		queryCondition += fmt.Sprintf("tourGuideId = %d", *req.TourGuideId)
+		isHavePreviousCond = true
+	}
+
+	if req.CustomerId != nil {
+		if isHavePreviousCond {
+			queryCondition += " AND "
+		}
+		queryCondition += fmt.Sprintf("customerId = %d", *req.CustomerId)
+		isHavePreviousCond = true
+	}
+
+	if req.InvoiceId != nil {
+		if isHavePreviousCond {
+			queryCondition += " AND "
+		}
+		queryCondition += fmt.Sprintf("invoiceId = %d", *req.InvoiceId)
+		isHavePreviousCond = true
+	}
+	if req.IsDeleted != nil {
+		if isHavePreviousCond {
+			queryCondition += " AND "
+		}
+		queryCondition += fmt.Sprintf("isDeleted = %t", *req.IsDeleted)
+		isHavePreviousCond = true
+	}
+
+	if req.Rating != nil {
+		if isHavePreviousCond {
+			queryCondition += " AND "
+		}
+		queryCondition += fmt.Sprintf("rating = %d", *req.Rating)
+		isHavePreviousCond = true
+	}
+
+	if queryCondition == "WHERE " {
+		queryCondition = ""
+	}
+
 	var orderCondition string = generateOrderCondition(req.Request.FilterProp, req.Request.Order)
 	var query string = generateRetrieveQuery(table, queryCondition+orderCondition, limitRecords, req.Request.Page, false)
+
+	f.logger.Println("Query condition: ", queryCondition)
+	f.logger.Println("Order condition: ", orderCondition)
+	f.logger.Println("Final query: ", query)
 
 	rows, err := f.db.Query(query)
 	if err != nil {
@@ -120,8 +167,8 @@ func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context
 	for rows.Next() {
 		var x entity.Feedback
 		if err := rows.Scan(
-			&x.FeedbackId, &x.CustomerId, &x.ServiceId, &x.TourGuideId, &x.CreatedDate,
-			&x.Content, &x.Rating, &x.IsDeleted, &x.UpdatedAt, &x.InvoiceId,
+			&x.FeedbackId, &x.CustomerId, &x.TourGuideId, &x.CreatedDate,
+			&x.Content, &x.Rating, &x.IsDeleted, &x.UpdatedAt, &x.InvoiceId, &x.ServiceId,
 		); err != nil {
 
 			f.logger.Println(errLogMsg + err.Error())
@@ -141,7 +188,7 @@ func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context
 // UpdateFeedback implements repo.IFeedbackRepo.
 func (f *feedbackRepo) UpdateFeedback(feedback entity.Feedback, ctx context.Context) error {
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, feedback.GetFeedbackTable()) + "Updatefeedback - "
-	var query string = "UPDATE " + feedback.GetFeedbackTable() + " SET content = $1, rating = $2, is_deleted = $3, updated_at = $4 WHERE feedback_id = $5"
+	var query string = "UPDATE " + feedback.GetFeedbackTable() + " SET content = @p1, rating = @p2, isDeleted = @p3, updatedAt = @p4 WHERE feedbackId = @p5"
 
 	res, err := f.db.Exec(query, feedback.Content, feedback.Rating, feedback.IsDeleted, feedback.UpdatedAt, feedback.FeedbackId)
 

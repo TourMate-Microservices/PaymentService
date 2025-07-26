@@ -3,15 +3,15 @@ package entity
 import "time"
 
 type Payment struct {
-	PaymentId     int       `json:"payment_id"`
-	CustomerId    int       `json:"customer_id"`
-	InvoiceId     int       `json:"invoice_id"`
+	//PaymentType   string    `json:"paymentType"` // bo^' bo? theo y' m
+	PaymentId     int       `json:"paymentId"`
 	Price         float64   `json:"price"`
-	Status        string    `json:"status"`
-	PaymentMethod string    `json:"payment_method"`
-	CreatedAt     time.Time `json:"created_at"`
+	CreatedAt     time.Time `json:"createdAt"`
+	PaymentMethod string    `json:"paymentMethod"`
+	AccountId     int       `json:"accountId"`
+	CustomerId    int       `json:"customerId"`
 }
 
 func (p Payment) GetPaymentTable() string {
-	return "payments"
+	return "Payment"
 }

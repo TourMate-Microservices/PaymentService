@@ -236,19 +236,13 @@ func RemoveFeedback(ctx *gin.Context) {
 // @Tags         test-grpc
 // @Accept       json
 // @Produce      json
-// @Param        service_id query int true "Tour Service ID"
+// @Param        id path int true "Tour service ID"
 // @Success      200 {object} pb.TourServiceRatingResponse
-// @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
-// @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
-// @Router       /payment-service/api/v1/feedbacks/test-grpc [get]
+// @Failure      401 {object} response.MessageApiResponse "You have no rights to access this action."
+// @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
+// @Failure      500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
+// @Router       /payment-service/api/v1/feedbacks/test-grpc/{id} [get]
 func TestGrpcFeedback(ctx *gin.Context) {
-	var request pb.GetTourServiceRatingRequest
-	if ctx.ShouldBindQuery(&request) != nil {
-		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
-		return
-	}
-
 	//cnn, err := grpc.Dial("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	// Method này ko đc thì undo commeent ở trên và thử lại
@@ -259,7 +253,11 @@ func TestGrpcFeedback(ctx *gin.Context) {
 	}
 	defer cnn.Close()
 
-	res, err := pb.NewPaymentServiceClient(cnn).GetTourServiceRating(ctx, &request)
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	res, err := pb.NewPaymentServiceClient(cnn).GetTourServiceRating(ctx, &pb.GetTourServiceRatingRequest{
+		ServiceId: int32(id),
+	})
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,
