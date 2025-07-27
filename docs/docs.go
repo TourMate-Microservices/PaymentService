@@ -629,9 +629,16 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Page number for pagination (starts from 1)",
-                        "name": "page",
+                        "description": "Page Index for pagination (starts from 1)",
+                        "name": "pageIndex",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -900,7 +907,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-service/api/v1/payments/create-embeded-payment-link": {
+        "/payment-service/api/v1/payments/create-embedded-payment-link": {
             "post": {
                 "description": "Initiates a PayOS transaction with the given request body",
                 "consumes": [

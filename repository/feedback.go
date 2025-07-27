@@ -96,7 +96,7 @@ func (f *feedbackRepo) GetFeedbackById(id int, ctx context.Context) (*entity.Fee
 func (f *feedbackRepo) GetFeedbacks(req request.GetFeedbacksRequest, ctx context.Context) (*[]entity.Feedback, int, int, error) {
 	var tmp entity.Feedback
 	var table string = tmp.GetFeedbackTable()
-	var limitRecords int = tmp.GetFeedbackLimitRecords()
+	var limitRecords int = req.PageSize
 
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, table) + "GetFeedbacks - "
 	var queryCondition string = "WHERE "

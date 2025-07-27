@@ -9,7 +9,7 @@ import (
 
 type IFeedbackService interface {
 	GetFeedbacks(req request.GetFeedbacksRequest, ctx context.Context) (response.PaginationDataResponse, error)
-	GetTourGuideFeedbacks(tourGuideIde, page int, ctx context.Context) (response.PaginationDataResponse, error)
+	GetTourGuideFeedbacks(req request.GetTourGuideFeedbacksRequest, ctx context.Context) (response.PaginationDataResponse, error)
 	GetFeedbackById(id int, ctx context.Context) (*entity.Feedback, error)
 	CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error
 	UpdateFeedback(req request.UpdateFeedbackRequest, ctx context.Context) error

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitializePaymentHandlerRoute(server *gin.Engine, port, service string) {
+func InitializePaymentHandlerRoute(server *gin.Engine, service string) {
 	//Context path
 	var contextPath string = service + "/api/v1/payments"
 
@@ -22,6 +22,6 @@ func InitializePaymentHandlerRoute(server *gin.Engine, port, service string) {
 	authGroup.POST("/create", handler.CreatePayment)
 
 	var norGroup = server.Group(contextPath)
-	norGroup.POST("/create-embeded-payment-link", handler.CreatePayosTransaction)
+	norGroup.POST("/create-embedded-payment-link", handler.CreatePayosTransaction)
 
 }

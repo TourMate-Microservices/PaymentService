@@ -11,5 +11,6 @@ type FeedbackResponse struct {
 	Content     string    `json:"content"`
 	CreatedDate time.Time `json:"createdDate"`
 	ServiceId   int       `json:"serviceId"`
+	InvoiceId   int       `json:"invoiceId"`
 	ServiceName string    `json:"serviceName"`
 }

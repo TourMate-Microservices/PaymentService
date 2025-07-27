@@ -35,10 +35,10 @@ func setupApiRoutes(logger *log.Logger, service string) {
 	setupSwagger(server, service, apiPort)
 
 	// Feedback API endpoints
-	api.InitializeFeedbackHandlerRoute(server, apiPort, service)
+	api.InitializeFeedbackHandlerRoute(server, service)
 
 	// Payment API endpoints
-	api.InitializePaymentHandlerRoute(server, apiPort, service)
+	api.InitializePaymentHandlerRoute(server, service)
 
 	// Default URL
 	server.GET("/", func(ctx *gin.Context) {
@@ -56,14 +56,23 @@ func setupSwagger(server *gin.Engine, service, port string) {
 	docs.SwaggerInfo.Title = "Tourmate - Payment Service API"
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
-	docs.SwaggerInfo.Host = "localhost:" + port
+	// If running in Docker Compose, set host to 'localhost' (no port), else use 'localhost:port'
+	if os.Getenv("DOCKER_COMPOSE") == "true" {
+		docs.SwaggerInfo.Host = "localhost"
+	} else {
+		docs.SwaggerInfo.Host = "localhost:" + port
+	}
 
 	//Add swagger route
 	server.GET("/"+service+"/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
 }
 
-func setupGrpcRoutes(logger *log.Logger, service string) {
+func setupGrpc(logger *log.Logger, service string) {
+	// Initialize gRPC server
 	grpc.InitializeGRPCRoute(logger, service)
+
+	// Dial on gRPC servers
+
 }
 
 func setupPayments(logger *log.Logger) {

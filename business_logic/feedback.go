@@ -32,6 +32,7 @@ type feedbackService struct {
 }
 
 func InitializeFeedbackService(db *sql.DB, userService business_logic.IUserService, tourService business_logic.ITourService, logger *log.Logger) business_logic.IFeedbackService {
+
 	return &feedbackService{
 		logger:       logger,
 		userService:  userService,
@@ -56,22 +57,19 @@ func GenerateFeedbackService() (business_logic.IFeedbackService, error) {
 }
 
 // GetFeedbacksUiResponse implements businesslogic.IFeedbackService.
-func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx context.Context) (response.PaginationDataResponse, error) {
-	if page < 1 {
-		page = 1
-	}
-
-	if tourGuideId < 1 {
-		tourGuideId = 1
+func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedbacksRequest, ctx context.Context) (response.PaginationDataResponse, error) {
+	if req.TourGuideId < 1 {
+		req.TourGuideId = 1
 	}
 
 	feedbacks, pages, totalRecords, err := f.feedbackRepo.GetFeedbacks(request.GetFeedbacksRequest{
 		Request: request.SearchPaginationRequest{
-			Page:       page,
+			Page:       req.PageIndex,
 			FilterProp: assignFilterProperty(""),
 			Order:      utils.AssignOrder(""),
 		},
-		TourGuideId: &tourGuideId,
+		PageSize:    req.PageSize,
+		TourGuideId: &req.TourGuideId,
 	}, ctx)
 
 	if err != nil {
@@ -104,6 +102,7 @@ func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx conte
 			Rating:      feedback.Rating,
 			Content:     feedback.Content,
 			CreatedDate: feedback.CreatedDate,
+			InvoiceId:   feedback.InvoiceId,
 			ServiceId:   feedback.ServiceId,
 			ServiceName: tourInfo.ServiceName,
 		})
@@ -112,11 +111,11 @@ func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx conte
 	return response.PaginationDataResponse{
 		Data:        data,
 		TotalCount:  totalRecords,
-		Page:        page,
+		Page:        req.PageIndex,
 		PerPage:     entity.Feedback{}.GetFeedbackLimitRecords(),
 		TotalPages:  pages,
-		HasNext:     page < pages,
-		HasPrevious: page > 1,
+		HasNext:     req.PageIndex < pages,
+		HasPrevious: req.PageIndex > 1,
 	}, err
 }
 
@@ -164,13 +163,15 @@ func (f *feedbackService) GetFeedbacks(req request.GetFeedbacksRequest, ctx cont
 	req.Request.FilterProp = assignFilterProperty(req.Request.FilterProp)
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
 
+	req.PageSize = req.Request.Page
+
 	data, pages, totalRecords, err := f.feedbackRepo.GetFeedbacks(req, ctx)
 
 	return response.PaginationDataResponse{
 		Data:        data,
 		TotalCount:  totalRecords,
 		Page:        req.Request.Page,
-		PerPage:     entity.Feedback{}.GetFeedbackLimitRecords(),
+		PerPage:     req.PageSize,
 		TotalPages:  pages,
 		HasNext:     req.Request.Page < pages,
 		HasPrevious: req.Request.Page > 1,

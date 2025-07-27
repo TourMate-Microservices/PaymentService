@@ -203,7 +203,7 @@ func CreatePayment(ctx *gin.Context) {
 // @Param        request body request.CreatePayosTransactionRequest true "PayOS Transaction Request"
 // @Success      200 {object} response.UrlResponse
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /payment-service/api/v1/payments/create-embeded-payment-link [post]
+// @Router       /payment-service/api/v1/payments/create-embedded-payment-link [post]
 func CreatePayosTransaction(ctx *gin.Context) {
 	var request request.CreatePayosTransactionRequest
 	if ctx.ShouldBindJSON(&request) != nil {

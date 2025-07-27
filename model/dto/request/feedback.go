@@ -8,6 +8,13 @@ type GetFeedbacksRequest struct {
 	InvoiceId   *int                    `json:"invoiceId" form:"invoiceId" binding:"omitempty,gt=0"`
 	Rating      *int                    `json:"rating" form:"rating" binding:"omitempty,gt=0"`
 	IsDeleted   *bool                   `json:"isDeleted" form:"isDeleted" binding:"omitempty"`
+	PageSize    int
+}
+
+type GetTourGuideFeedbacksRequest struct {
+	PageSize    int `json:"pageSize" form:"pageSize" binding:"required,gt=0"`
+	PageIndex   int `json:"pageIndex" form:"pageIndex"`
+	TourGuideId int
 }
 
 type CreateFeedbackRequest struct {

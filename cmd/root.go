@@ -21,7 +21,7 @@ func Execute() {
 	var service string = os.Getenv(env.SERVICE_NAME)
 
 	// Setup gRPC routes
-	go setupGrpcRoutes(logger, service)
+	go setupGrpc(logger, service)
 
 	// Setup API routes
 	setupApiRoutes(logger, service)

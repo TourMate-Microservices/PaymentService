@@ -275,21 +275,28 @@ func TestGrpcFeedback(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id path int true "Tour Guide ID"
-// @Param        page  query int  false  "Page number for pagination (starts from 1)"
+// @Param        pageIndex  query int  false  "Page Index for pagination (starts from 1)"
+// @Param        pageSize   query     int  true  "Number of items per page"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Router       /payment-service/api/v1/feedbacks/tourGuide/{id} [get]
 func GetTourGuideFeedbacks(ctx *gin.Context) {
+	var request request.GetTourGuideFeedbacksRequest
+	if ctx.ShouldBindJSON(&request) != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
+		return
+	}
+
+	tourGuideId, _ := strconv.Atoi(ctx.Param("id"))
+	request.TourGuideId = tourGuideId
+
 	service, err := business_logic.GenerateFeedbackService()
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
 		return
 	}
 
-	page, _ := strconv.Atoi(ctx.Query("page"))
-	tourGuideId, _ := strconv.Atoi(ctx.Param("id"))
-
-	res, err := service.GetTourGuideFeedbacks(tourGuideId, page, ctx)
+	res, err := service.GetTourGuideFeedbacks(request, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitializeFeedbackHandlerRoute(server *gin.Engine, port, service string) {
+func InitializeFeedbackHandlerRoute(server *gin.Engine, service string) {
 	//Context path
 	var contextPath string = service + "/api/v1/feedbacks"
 
