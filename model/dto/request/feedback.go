@@ -2,12 +2,12 @@ package request
 
 type GetFeedbacksRequest struct {
 	Request     SearchPaginationRequest `json:"request"`
-	ServiceId   *int                    `json:"serviceId" form:"serviceId" binding:"gt=0"`
-	CustomerId  *int                    `json:"customerId" form:"customerId" binding:"gt=0"`
-	TourGuideId *int                    `json:"tourGuideId" form:"tourGuideId" binding:"gt=0"`
-	InvoiceId   *int                    `json:"invoiceId" form:"invoiceId" binding:"gt=0"`
-	Rating      *int                    `json:"rating" form:"rating" binding:"gt=0"`
-	IsDeleted   *bool                   `json:"isDeleted" form:"isDeleted"`
+	ServiceId   *int                    `json:"serviceId" form:"serviceId" binding:"omitempty,gt=0"`
+	CustomerId  *int                    `json:"customerId" form:"customerId" binding:"omitempty,gt=0"`
+	TourGuideId *int                    `json:"tourGuideId" form:"tourGuideId" binding:"omitempty,gt=0"`
+	InvoiceId   *int                    `json:"invoiceId" form:"invoiceId" binding:"omitempty,gt=0"`
+	Rating      *int                    `json:"rating" form:"rating" binding:"omitempty,gt=0"`
+	IsDeleted   *bool                   `json:"isDeleted" form:"isDeleted" binding:"omitempty"`
 }
 
 type CreateFeedbackRequest struct {
