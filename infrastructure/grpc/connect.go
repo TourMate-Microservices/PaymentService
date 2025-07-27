@@ -11,7 +11,7 @@ import (
 )
 
 func ConnectGrpcService(port, service string, logger *log.Logger) (*grpc.ClientConn, error) {
-	cnn, err := grpc.NewClient(port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	cnn, err := grpc.Dial(port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		logger.Println(fmt.Sprintf(noti.GRPC_CONNECTION_ERR_MSG, service) + err.Error())

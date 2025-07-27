@@ -78,7 +78,7 @@ func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedback
 
 	var data []response.FeedbackResponse
 	for _, feedback := range *feedbacks {
-		customerInfo, err := f.userService.GetUser(ctx, &pb.GetCustomerByIdRequest{
+		customerInfo, err := f.userService.GetCustomerById(ctx, &pb.GetCustomerByIdRequest{
 			CustomerId: int32(feedback.CustomerId),
 		})
 
@@ -86,7 +86,7 @@ func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedback
 			return response.PaginationDataResponse{}, err
 		}
 
-		tourInfo, err := f.tourService.GetTour(ctx, &tour_pb.TourServiceIdRequest{
+		tourInfo, err := f.tourService.GetTourById(ctx, &tour_pb.TourServiceIdRequest{
 			ServiceId: int32(feedback.ServiceId),
 		})
 
@@ -122,7 +122,7 @@ func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedback
 // CreateFeedback implements businesslogic.IFeedbackService.
 func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error {
 	// Verify user data (implement later)
-	user, err := f.userService.GetUser(ctx, &pb.GetCustomerByIdRequest{
+	user, err := f.userService.GetCustomerById(ctx, &pb.GetCustomerByIdRequest{
 		CustomerId: int32(req.CustomerId),
 	})
 

@@ -33,7 +33,7 @@ func GenerateUserService(logger *log.Logger) (business_logic.IUserService, error
 }
 
 // GetUser implements businesslogic.IUserService.
-func (u *userService) GetUser(ctx context.Context, req *pb.GetCustomerByIdRequest) (*pb.CustomerResponse, error) {
+func (u *userService) GetCustomerById(ctx context.Context, req *pb.GetCustomerByIdRequest) (*pb.CustomerResponse, error) {
 	res, err := pb.NewUserServiceClient(u.cnn).GetCustomerById(ctx, req)
 
 	if err != nil {
