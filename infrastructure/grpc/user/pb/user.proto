@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-
-package pb;
+package userservice;
 
 option go_package = "pb/";
+option csharp_namespace = "userservice";
 
 message GetCustomerByIdRequest {
     int32 customerId = 1;
@@ -18,9 +18,10 @@ message CustomerResponse {
     string email = 6;
 }
 
-
-
 // gRPC service definition
 service UserService {
     rpc GetCustomerById(GetCustomerByIdRequest) returns (CustomerResponse);
 }
+
+
+

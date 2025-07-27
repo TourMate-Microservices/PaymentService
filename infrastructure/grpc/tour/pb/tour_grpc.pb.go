@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TourService_GetTourById_FullMethodName = "/pb.TourService/GetTourById"
+	TourService_GetTourById_FullMethodName = "/TourService/GetTourById"
 )
 
 // TourServiceClient is the client API for TourService service.
@@ -108,7 +108,7 @@ func _TourService_GetTourById_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TourService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.TourService",
+	ServiceName: "TourService",
 	HandlerType: (*TourServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
