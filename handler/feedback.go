@@ -282,7 +282,7 @@ func TestGrpcFeedback(ctx *gin.Context) {
 // @Router       /payment-service/api/v1/feedbacks/tourGuide/{id} [get]
 func GetTourGuideFeedbacks(ctx *gin.Context) {
 	var request request.GetTourGuideFeedbacksRequest
-	if ctx.ShouldBindJSON(&request) != nil {
+	if ctx.ShouldBindQuery(&request) != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
 		return
 	}
