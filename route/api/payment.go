@@ -1,6 +1,7 @@
 package api
 
 import (
+	"os"
 	"tourmate/payment-service/handler"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,14 @@ import (
 
 func InitializePaymentHandlerRoute(server *gin.Engine, service string) {
 	//Context path
-	var contextPath string = service + "/api/v1/payments"
+	var contextPath string
+	if os.Getenv("DOCKER_COMPOSE") == "true" {
+		// When running with Traefik, the prefix is already stripped
+		contextPath = "/api/v1/payments"
+	} else {
+		// When running standalone, include the service prefix
+		contextPath = service + "/api/v1/payments"
+	}
 
 	// Define Payment endpoints with admin required
 	var adminAuthGroup = server.Group(contextPath)

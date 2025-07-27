@@ -42,7 +42,7 @@ func setupApiRoutes(logger *log.Logger, service string) {
 
 	// Default URL
 	server.GET("/", func(ctx *gin.Context) {
-		ctx.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/%s/swagger/index.html#", service))
+		ctx.Redirect(http.StatusMovedPermanently, "/swagger/index.html#")
 	})
 
 	// Run server
@@ -64,7 +64,13 @@ func setupSwagger(server *gin.Engine, service, port string) {
 	}
 
 	//Add swagger route
-	server.GET("/"+service+"/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
+	if os.Getenv("DOCKER_COMPOSE") == "true" {
+		// When running with Traefik, the prefix is already stripped
+		server.GET("/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
+	} else {
+		// When running standalone, include the service prefix
+		server.GET("/"+service+"/swagger/*any", gin_swagger.WrapHandler(swagger_files.Handler))
+	}
 }
 
 func setupGrpc(logger *log.Logger, service string) {
