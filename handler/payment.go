@@ -161,89 +161,15 @@ func UpdatePayment(ctx *gin.Context) {
 	})
 }
 
-// CallbackPaymentSuccess godoc
-// @Summary      Callback after successful payment
-// @Description  Handles redirect or callback after successful payment
-// @Tags         payments
-// @Accept       json
-// @Produce      json
-// @Param customerId     query int     true  "Customer ID"
-// @Param accountId      query int     true  "Account ID"
-// @Param paymentMethod  query string  true  "Payment Method"
-// @Param price          query number  true  "Price of the transaction"
-// @Param orderCode      query int     true  "Order Code"
-// @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /payment-service/api/v1/payments/callback-success [get]
-func CallbackPaymentSuccess(ctx *gin.Context) {
-	var request response.PaymentCallbackComponent
-	if ctx.ShouldBindQuery(&request) != nil {
-		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
-		return
-	}
-
-	service, err := business_logic.GeneratePaymentService()
-	if err != nil {
-		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
-		return
-	}
-
-	res, err := service.CallbackPaymentSuccess(request, ctx)
-
-	utils.ProcessResponse(response.ApiResponse{
-		Data1:    res,
-		Data2:    res,
-		ErrMsg:   err,
-		Context:  ctx,
-		PostType: action_type.REDIRECT,
-	})
-}
-
-// CallbackPaymentCancel godoc
-// @Summary      Callback after canceled payment
-// @Description  Handles redirect or callback after canceled payment
-// @Tags         payments
-// @Accept       json
-// @Produce      json
-// @Param customerId     query int     true  "Customer ID"
-// @Param accountId      query int     true  "Account ID"
-// @Param paymentMethod  query string  true  "Payment Method"
-// @Param price          query number  true  "Price of the transaction"
-// @Param orderCode      query int     true  "Order Code"
-// @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /payment-service/api/v1/payments/callback-cancel [get]
-func CallbackPaymentCancel(ctx *gin.Context) {
-	var request response.PaymentCallbackComponent
-	if ctx.ShouldBindQuery(&request) != nil {
-		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
-		return
-	}
-
-	service, err := business_logic.GeneratePaymentService()
-	if err != nil {
-		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
-		return
-	}
-
-	res, err := service.CallbackPaymentCancel(request, ctx)
-
-	utils.ProcessResponse(response.ApiResponse{
-		Data1:    res,
-		Data2:    res,
-		ErrMsg:   err,
-		Context:  ctx,
-		PostType: action_type.REDIRECT,
-	})
-}
-
 // CreatePayment godoc
 // @Summary      Create a payment
-// @Description  Creates a new payment and returns redirect info or confirmation
+// @Description  Creates a new payment
 // @Tags         payments
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
 // @Param        request body request.CreatePaymentRequest true "Create Payment Request"
-// @Success 200 {object} response.UrlResponse
+// @Success 200 {object} response.MessageApiResponse "success"
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -261,7 +187,37 @@ func CreatePayment(ctx *gin.Context) {
 		return
 	}
 
-	res, err := service.CreatePayment(request, ctx)
+	utils.ProcessResponse(response.ApiResponse{
+		ErrMsg:   service.CreatePayment(request, ctx),
+		Context:  ctx,
+		PostType: action_type.NON_POST,
+	})
+}
+
+// CreatePayosTransaction godoc
+// @Summary      Create a PayOS Transaction
+// @Description  Initiates a PayOS transaction with the given request body
+// @Tags         payments
+// @Accept       json
+// @Produce      json
+// @Param        request body request.CreatePayosTransactionRequest true "PayOS Transaction Request"
+// @Success      200 {object} response.UrlResponse
+// @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
+// @Router       /payment-service/api/v1/payments/create-embeded-payment-link [post]
+func CreatePayosTransaction(ctx *gin.Context) {
+	var request request.CreatePayosTransactionRequest
+	if ctx.ShouldBindJSON(&request) != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
+		return
+	}
+
+	service, err := business_logic.GeneratePaymentService()
+	if err != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
+		return
+	}
+
+	res, err := service.CreatePayosTransaction(request, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,

@@ -6,5 +6,5 @@ import (
 )
 
 type ITourService interface {
-	GetTour(ctx context.Context, req *pb.GetTourRequest) (*pb.Tour, error)
+	GetTour(ctx context.Context, req *pb.TourServiceIdRequest) (*pb.TourServiceItem, error)
 }

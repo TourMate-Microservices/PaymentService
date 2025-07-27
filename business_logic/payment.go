@@ -8,8 +8,8 @@ import (
 	"log"
 	"os"
 	"time"
+	domain_status "tourmate/payment-service/constant/domain_status"
 	payment_env "tourmate/payment-service/constant/env/payment"
-	mail_const "tourmate/payment-service/constant/mail_const"
 	"tourmate/payment-service/constant/noti"
 	"tourmate/payment-service/infrastructure/grpc/user"
 	"tourmate/payment-service/infrastructure/grpc/user/pb"
@@ -21,8 +21,6 @@ import (
 	"tourmate/payment-service/repository"
 	"tourmate/payment-service/repository/db"
 	db_server "tourmate/payment-service/repository/db_server"
-
-	payment_method "tourmate/payment-service/constant/payment_method"
 
 	"tourmate/payment-service/utils"
 
@@ -72,8 +70,8 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
 
 	if req.CustomerId != nil {
-		user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
-			Id: int32(*req.CustomerId),
+		user, err := p.userService.GetUser(ctx, &pb.GetCustomerByIdRequest{
+			CustomerId: int32(*req.CustomerId),
 		})
 
 		if err != nil {
@@ -114,55 +112,16 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 }
 
 // CreatePayment implements businesslogic.IPaymentService.
-func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (response.UrlResponse, error) {
-	var errRes error = errors.New(noti.GENERIC_ERROR_WARN_MSG)
-	var res response.UrlResponse
-
-	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
-		Id: int32(req.CustomerId),
-	})
-
-	if err != nil {
-		return res, err
-	}
-
-	if user == nil {
-		return res, errRes
-	}
-
-	var orderCode int = utils.GenerateNumber()
-
-	var component = response.PaymentCallbackComponent{
+func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) error {
+	return p.paymentRepo.CreatePayment(entity.Payment{
 		CustomerId:    req.CustomerId,
-		AccountId:     req.AccountId,
-		PaymentMethod: req.PaymentMethod,
+		InvoiceId:     req.InvoiceId,
+		ServiceId:     req.ServiceId,
 		Price:         req.Price,
-		OrderCode:     orderCode,
-	}
-
-	// Create transaction url
-	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
-		OrderCode: int64(orderCode),
-		Amount:    int(req.Price),
-		Items: []payos.Item{
-			{
-				Name:     fmt.Sprint(orderCode),
-				Quantity: 1,
-				Price:    int(req.Price),
-			},
-		},
-		Description: fmt.Sprint(orderCode),
-		ReturnUrl:   generateCallbackUrl(component, os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS)),
-		CancelUrl:   generateCallbackUrl(component, os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL)),
-	})
-
-	if err != nil {
-		p.logger.Println(fmt.Sprintf(noti.PAYMENT_GENERATE_TRANSACTION_URL_ERR_MSG, payment_method.PAYOS) + err.Error())
-		return res, errors.New(noti.INTERNALL_ERR_MSG)
-	}
-
-	res.Url = data.CheckoutUrl
-	return res, nil
+		PaymentMethod: req.PaymentMethod,
+		CreatedAt:     time.Now(),
+		Status:        domain_status.PAYMENT_PAID,
+	}, ctx)
 }
 
 // // CreatePaymentDirect implements businesslogic.IPaymentService.
@@ -274,79 +233,106 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 // 	return data.CheckoutUrl, nil
 // }
 
-// CallbackPaymentSuccess implements businesslogic.IPaymentService.
-func (p *paymentService) CallbackPaymentSuccess(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
-	if err := p.paymentRepo.CreatePayment(entity.Payment{
-		Price:         component.Price,
-		PaymentMethod: component.PaymentMethod,
-		CustomerId:    component.CustomerId,
-		AccountId:     component.AccountId,
-		CreatedAt:     time.Now(),
-	}, ctx); err != nil {
-		return "", err
-	}
-	// Get user data
-	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
-		Id: int32(component.CustomerId),
-	})
+// // CallbackPaymentSuccess implements businesslogic.IPaymentService.
+// func (p *paymentService) CallbackPaymentSuccess(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
+// 	if err := p.paymentRepo.CreatePayment(entity.Payment{
+// 		Price:         component.Price,
+// 		PaymentMethod: component.PaymentMethod,
+// 		CustomerId:    component.CustomerId,
+// 		AccountId:     component.AccountId,
+// 		CreatedAt:     time.Now(),
+// 	}, ctx); err != nil {
+// 		return "", err
+// 	}
+// 	// Get user data
+// 	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
+// 		Id: int32(component.CustomerId),
+// 	})
 
-	if err != nil {
-		return "", err
-	}
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	// Send mail
-	utils.SendMail(request.SendMailRequest{
-		Body: request.MailBody{ // Mail body
-			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
-			Email:         user.Email,
-			Username:      user.Fullname,
-			TransactionId: component.OrderCode,
+// 	// Send mail
+// 	utils.SendMail(request.SendMailRequest{
+// 		Body: request.MailBody{ // Mail body
+// 			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
+// 			Email:         user.Email,
+// 			Username:      user.Fullname,
+// 			TransactionId: component.OrderCode,
+// 		},
+
+// 		TemplatePath: mail_const.PAYMENT_CALLBACK_SUCCESS_TEMPLATE,
+
+// 		Logger: p.logger, // Logger
+// 	})
+
+// 	return "url-to-process-payment-page", nil
+// }
+
+// // CallbackPaymentCancel implements businesslogic.IPaymentService.
+// func (p *paymentService) CallbackPaymentCancel(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
+// 	// Get user data
+// 	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
+// 		Id: int32(component.CustomerId),
+// 	})
+
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	// Send mail
+// 	utils.SendMail(request.SendMailRequest{
+// 		Body: request.MailBody{ // Mail body
+// 			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
+// 			Email:         user.Email,
+// 			Username:      user.Fullname,
+// 			TransactionId: component.OrderCode,
+// 		},
+
+// 		TemplatePath: mail_const.PAYMENT_CALLBACK_CANCEL_TEMPLATE,
+
+// 		Logger: p.logger, // Logger
+// 	})
+
+// 	return "url-to-process-payment-page", nil
+// }
+
+// func generateCallbackUrl(data response.PaymentCallbackComponent, domainUrl string) string {
+// 	return fmt.Sprintf(
+// 		"%s?customerId=%d&accountId=%d&paymentMethod=%s&price=%.2f&orderCode=%d",
+// 		domainUrl,
+// 		data.CustomerId,
+// 		data.AccountId,
+// 		data.PaymentMethod,
+// 		data.Price,
+// 		data.OrderCode,
+// 	)
+// }
+
+// CreatePayosTransaction implements businesslogic.IPaymentService.
+func (p *paymentService) CreatePayosTransaction(req request.CreatePayosTransactionRequest, ctx context.Context) (response.UrlResponse, error) {
+	var description string = fmt.Sprintf("Transaction for Invoice %d", req.InvoiceId)
+	p.logger.Println("Description: ", description)
+
+	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
+		Amount:    int(req.Amount), // PayOS expects amount in cents
+		OrderCode: int64(utils.GenerateNumber()),
+		Items: []payos.Item{
+			{
+				Name:     description,
+				Quantity: 1,
+				Price:    int(req.Amount), // Convert to cents
+			},
 		},
-
-		TemplatePath: mail_const.PAYMENT_CALLBACK_SUCCESS_TEMPLATE,
-
-		Logger: p.logger, // Logger
+		Description: description,
+		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS) + fmt.Sprintf("%d", req.InvoiceId),
+		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL) + fmt.Sprintf("%d", req.InvoiceId),
 	})
 
-	return "url-to-process-payment-page", nil
-}
+	p.logger.Println("Payos link: ", data.CheckoutUrl)
 
-// CallbackPaymentCancel implements businesslogic.IPaymentService.
-func (p *paymentService) CallbackPaymentCancel(component response.PaymentCallbackComponent, ctx context.Context) (string, error) {
-	// Get user data
-	user, err := p.userService.GetUser(ctx, &pb.GetUserRequest{
-		Id: int32(component.CustomerId),
-	})
-
-	if err != nil {
-		return "", err
-	}
-
-	// Send mail
-	utils.SendMail(request.SendMailRequest{
-		Body: request.MailBody{ // Mail body
-			Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
-			Email:         user.Email,
-			Username:      user.Fullname,
-			TransactionId: component.OrderCode,
-		},
-
-		TemplatePath: mail_const.PAYMENT_CALLBACK_CANCEL_TEMPLATE,
-
-		Logger: p.logger, // Logger
-	})
-
-	return "url-to-process-payment-page", nil
-}
-
-func generateCallbackUrl(data response.PaymentCallbackComponent, domainUrl string) string {
-	return fmt.Sprintf(
-		"%s?customerId=%d&accountId=%d&paymentMethod=%s&price=%.2f&orderCode=%d",
-		domainUrl,
-		data.CustomerId,
-		data.AccountId,
-		data.PaymentMethod,
-		data.Price,
-		data.OrderCode,
-	)
+	return response.UrlResponse{
+		Url: data.CheckoutUrl,
+	}, err
 }

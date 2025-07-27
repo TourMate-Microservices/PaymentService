@@ -25,11 +25,11 @@ definitions:
     type: object
   entity.Payment:
     properties:
-      accountId:
-        type: integer
       createdAt:
         type: string
       customerId:
+        type: integer
+      invoiceId:
         type: integer
       paymentId:
         description: PaymentType   string    `json:"paymentType"` // bo^' bo? theo
@@ -39,6 +39,11 @@ definitions:
         type: string
       price:
         type: number
+      serviceId:
+        type: integer
+      status:
+        description: e.g., "paid", "unpaid", "pending"
+        type: string
     type: object
   entity.PlatformFeedback:
     properties:
@@ -71,6 +76,7 @@ definitions:
       invoiceId:
         type: integer
       rating:
+        maximum: 5
         type: integer
       serviceId:
         type: integer
@@ -86,19 +92,32 @@ definitions:
     type: object
   request.CreatePaymentRequest:
     properties:
-      accountId:
-        type: integer
       customerId:
+        type: integer
+      invoiceId:
         type: integer
       paymentMethod:
         type: string
       price:
         type: number
+      serviceId:
+        type: integer
     required:
-    - accountId
     - customerId
+    - invoiceId
     - paymentMethod
     - price
+    - serviceId
+    type: object
+  request.CreatePayosTransactionRequest:
+    properties:
+      amount:
+        type: number
+      invoiceId:
+        type: integer
+    required:
+    - amount
+    - invoiceId
     type: object
   request.CreatePlatformFeedbackRequest:
     properties:
@@ -130,6 +149,7 @@ definitions:
       content:
         type: string
       rating:
+        maximum: 5
         type: integer
       request:
         $ref: '#/definitions/request.RemoveFeedbackRequest'
@@ -760,93 +780,11 @@ paths:
       summary: Get payment by ID
       tags:
       - payments
-  /payment-service/api/v1/payments/callback-cancel:
-    get:
-      consumes:
-      - application/json
-      description: Handles redirect or callback after canceled payment
-      parameters:
-      - description: Customer ID
-        in: query
-        name: customerId
-        required: true
-        type: integer
-      - description: Account ID
-        in: query
-        name: accountId
-        required: true
-        type: integer
-      - description: Payment Method
-        in: query
-        name: paymentMethod
-        required: true
-        type: string
-      - description: Price of the transaction
-        in: query
-        name: price
-        required: true
-        type: number
-      - description: Order Code
-        in: query
-        name: orderCode
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      summary: Callback after canceled payment
-      tags:
-      - payments
-  /payment-service/api/v1/payments/callback-success:
-    get:
-      consumes:
-      - application/json
-      description: Handles redirect or callback after successful payment
-      parameters:
-      - description: Customer ID
-        in: query
-        name: customerId
-        required: true
-        type: integer
-      - description: Account ID
-        in: query
-        name: accountId
-        required: true
-        type: integer
-      - description: Payment Method
-        in: query
-        name: paymentMethod
-        required: true
-        type: string
-      - description: Price of the transaction
-        in: query
-        name: price
-        required: true
-        type: number
-      - description: Order Code
-        in: query
-        name: orderCode
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Invalid data. Please try again.
-          schema:
-            $ref: '#/definitions/response.MessageApiResponse'
-      summary: Callback after successful payment
-      tags:
-      - payments
   /payment-service/api/v1/payments/create:
     post:
       consumes:
       - application/json
-      description: Creates a new payment and returns redirect info or confirmation
+      description: Creates a new payment
       parameters:
       - description: Create Payment Request
         in: body
@@ -858,9 +796,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: success
           schema:
-            $ref: '#/definitions/response.UrlResponse'
+            $ref: '#/definitions/response.MessageApiResponse'
         "400":
           description: Invalid data. Please try again.
           schema:
@@ -877,6 +815,32 @@ paths:
       security:
       - BearerAuth: []
       summary: Create a payment
+      tags:
+      - payments
+  /payment-service/api/v1/payments/create-embeded-payment-link:
+    post:
+      consumes:
+      - application/json
+      description: Initiates a PayOS transaction with the given request body
+      parameters:
+      - description: PayOS Transaction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreatePayosTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UrlResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      summary: Create a PayOS Transaction
       tags:
       - payments
   /payment-service/api/v1/payments/customer/{id}:

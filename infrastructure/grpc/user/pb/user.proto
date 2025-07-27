@@ -1,23 +1,26 @@
 syntax = "proto3";
 
+
 package pb;
 
 option go_package = "pb/";
 
-// Request message with user ID
-message GetUserRequest {
-    int32 id = 1;
+message GetCustomerByIdRequest {
+    int32 customerId = 1;
 }
 
-// User message
-message User {
-    int32 id = 1;
-    string fullname = 2;
-    string email = 3;
-    string image = 4;
+message CustomerResponse {
+    int32 customerId = 1;
+    string fullName = 2;
+    string image = 3;
+    string gender = 4;
+    string phone = 5;
+    string email = 6;
 }
+
+
 
 // gRPC service definition
 service UserService {
-    rpc GetUser(GetUserRequest) returns (User);
+    rpc GetCustomerById(GetCustomerByIdRequest) returns (CustomerResponse);
 }

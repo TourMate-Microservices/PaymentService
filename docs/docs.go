@@ -843,126 +843,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-service/api/v1/payments/callback-cancel": {
-            "get": {
-                "description": "Handles redirect or callback after canceled payment",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "payments"
-                ],
-                "summary": "Callback after canceled payment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Customer ID",
-                        "name": "customerId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Account ID",
-                        "name": "accountId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Payment Method",
-                        "name": "paymentMethod",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "number",
-                        "description": "Price of the transaction",
-                        "name": "price",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Order Code",
-                        "name": "orderCode",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "description": "Invalid data. Please try again.",
-                        "schema": {
-                            "$ref": "#/definitions/response.MessageApiResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/payment-service/api/v1/payments/callback-success": {
-            "get": {
-                "description": "Handles redirect or callback after successful payment",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "payments"
-                ],
-                "summary": "Callback after successful payment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Customer ID",
-                        "name": "customerId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Account ID",
-                        "name": "accountId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Payment Method",
-                        "name": "paymentMethod",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "number",
-                        "description": "Price of the transaction",
-                        "name": "price",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Order Code",
-                        "name": "orderCode",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "description": "Invalid data. Please try again.",
-                        "schema": {
-                            "$ref": "#/definitions/response.MessageApiResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/payment-service/api/v1/payments/create": {
             "post": {
                 "security": [
@@ -970,7 +850,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new payment and returns redirect info or confirmation",
+                "description": "Creates a new payment",
                 "consumes": [
                     "application/json"
                 ],
@@ -994,9 +874,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "success",
                         "schema": {
-                            "$ref": "#/definitions/response.UrlResponse"
+                            "$ref": "#/definitions/response.MessageApiResponse"
                         }
                     },
                     "400": {
@@ -1013,6 +893,46 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/payments/create-embeded-payment-link": {
+            "post": {
+                "description": "Initiates a PayOS transaction with the given request body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create a PayOS Transaction",
+                "parameters": [
+                    {
+                        "description": "PayOS Transaction Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreatePayosTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UrlResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
                         "schema": {
                             "$ref": "#/definitions/response.MessageApiResponse"
                         }
@@ -1254,13 +1174,13 @@ const docTemplate = `{
         "entity.Payment": {
             "type": "object",
             "properties": {
-                "accountId": {
-                    "type": "integer"
-                },
                 "createdAt": {
                     "type": "string"
                 },
                 "customerId": {
+                    "type": "integer"
+                },
+                "invoiceId": {
                     "type": "integer"
                 },
                 "paymentId": {
@@ -1272,6 +1192,13 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "number"
+                },
+                "serviceId": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "e.g., \"paid\", \"unpaid\", \"pending\"",
+                    "type": "string"
                 }
             }
         },
@@ -1330,7 +1257,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5
                 },
                 "serviceId": {
                     "type": "integer"
@@ -1343,16 +1271,17 @@ const docTemplate = `{
         "request.CreatePaymentRequest": {
             "type": "object",
             "required": [
-                "accountId",
                 "customerId",
+                "invoiceId",
                 "paymentMethod",
-                "price"
+                "price",
+                "serviceId"
             ],
             "properties": {
-                "accountId": {
+                "customerId": {
                     "type": "integer"
                 },
-                "customerId": {
+                "invoiceId": {
                     "type": "integer"
                 },
                 "paymentMethod": {
@@ -1360,6 +1289,24 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "number"
+                },
+                "serviceId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreatePayosTransactionRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "invoiceId"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "invoiceId": {
+                    "type": "integer"
                 }
             }
         },
@@ -1407,7 +1354,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5
                 },
                 "request": {
                     "$ref": "#/definitions/request.RemoveFeedbackRequest"

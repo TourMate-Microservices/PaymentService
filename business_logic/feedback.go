@@ -80,16 +80,16 @@ func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx conte
 
 	var data []response.FeedbackResponse
 	for _, feedback := range *feedbacks {
-		customerInfo, err := f.userService.GetUser(ctx, &pb.GetUserRequest{
-			Id: int32(feedback.CustomerId),
+		customerInfo, err := f.userService.GetUser(ctx, &pb.GetCustomerByIdRequest{
+			CustomerId: int32(feedback.CustomerId),
 		})
 
 		if err != nil {
 			return response.PaginationDataResponse{}, err
 		}
 
-		tourInfo, err := f.tourService.GetTour(ctx, &tour_pb.GetTourRequest{
-			Id: int32(feedback.ServiceId),
+		tourInfo, err := f.tourService.GetTour(ctx, &tour_pb.TourServiceIdRequest{
+			ServiceId: int32(feedback.ServiceId),
 		})
 
 		if err != nil {
@@ -99,7 +99,7 @@ func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx conte
 		data = append(data, response.FeedbackResponse{
 			FeedbackId:  feedback.FeedbackId,
 			CustomerId:  feedback.CustomerId,
-			FullName:    customerInfo.Fullname,
+			FullName:    customerInfo.FullName,
 			Image:       customerInfo.Image,
 			Rating:      feedback.Rating,
 			Content:     feedback.Content,
@@ -123,8 +123,8 @@ func (f *feedbackService) GetTourGuideFeedbacks(tourGuideId, page int, ctx conte
 // CreateFeedback implements businesslogic.IFeedbackService.
 func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error {
 	// Verify user data (implement later)
-	user, err := f.userService.GetUser(ctx, &pb.GetUserRequest{
-		Id: int32(req.CustomerId),
+	user, err := f.userService.GetUser(ctx, &pb.GetCustomerByIdRequest{
+		CustomerId: int32(req.CustomerId),
 	})
 
 	if err != nil {

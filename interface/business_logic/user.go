@@ -6,5 +6,5 @@ import (
 )
 
 type IUserService interface {
-	GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error)
+	GetUser(ctx context.Context, req *pb.GetCustomerByIdRequest) (*pb.CustomerResponse, error)
 }

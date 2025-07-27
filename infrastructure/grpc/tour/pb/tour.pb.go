@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.35.1
 // 	protoc        v5.28.3
-// source: infrastructure/grpc/tour/tour.proto
+// source: tour.proto
 
 package pb
 
@@ -20,30 +20,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Request message with user ID
-type GetTourRequest struct {
+type TourServiceIdRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ServiceId int32 `protobuf:"varint,1,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
 }
 
-func (x *GetTourRequest) Reset() {
-	*x = GetTourRequest{}
-	mi := &file_infrastructure_grpc_tour_tour_proto_msgTypes[0]
+func (x *TourServiceIdRequest) Reset() {
+	*x = TourServiceIdRequest{}
+	mi := &file_tour_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetTourRequest) String() string {
+func (x *TourServiceIdRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetTourRequest) ProtoMessage() {}
+func (*TourServiceIdRequest) ProtoMessage() {}
 
-func (x *GetTourRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_infrastructure_grpc_tour_tour_proto_msgTypes[0]
+func (x *TourServiceIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_tour_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -54,42 +53,51 @@ func (x *GetTourRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetTourRequest.ProtoReflect.Descriptor instead.
-func (*GetTourRequest) Descriptor() ([]byte, []int) {
-	return file_infrastructure_grpc_tour_tour_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use TourServiceIdRequest.ProtoReflect.Descriptor instead.
+func (*TourServiceIdRequest) Descriptor() ([]byte, []int) {
+	return file_tour_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetTourRequest) GetId() int32 {
+func (x *TourServiceIdRequest) GetServiceId() int32 {
 	if x != nil {
-		return x.Id
+		return x.ServiceId
 	}
 	return 0
 }
 
-// Tour message
-type Tour struct {
+type TourServiceItem struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ServiceName string `protobuf:"bytes,1,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
+	ServiceId   int32   `protobuf:"varint,1,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
+	ServiceName string  `protobuf:"bytes,2,opt,name=serviceName,proto3" json:"serviceName,omitempty"`
+	Price       float32 `protobuf:"fixed32,3,opt,name=price,proto3" json:"price,omitempty"`
+	Duration    string  `protobuf:"bytes,4,opt,name=duration,proto3" json:"duration,omitempty"`
+	Content     string  `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
+	Image       string  `protobuf:"bytes,6,opt,name=image,proto3" json:"image,omitempty"`
+	CreatedDate string  `protobuf:"bytes,7,opt,name=createdDate,proto3" json:"createdDate,omitempty"`
+	IsDeleted   bool    `protobuf:"varint,8,opt,name=isDeleted,proto3" json:"isDeleted,omitempty"`
+	Title       string  `protobuf:"bytes,9,opt,name=title,proto3" json:"title,omitempty"`
+	TourDesc    string  `protobuf:"bytes,10,opt,name=tourDesc,proto3" json:"tourDesc,omitempty"`
+	AreaId      int32   `protobuf:"varint,11,opt,name=areaId,proto3" json:"areaId,omitempty"`
 }
 
-func (x *Tour) Reset() {
-	*x = Tour{}
-	mi := &file_infrastructure_grpc_tour_tour_proto_msgTypes[1]
+func (x *TourServiceItem) Reset() {
+	*x = TourServiceItem{}
+	mi := &file_tour_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Tour) String() string {
+func (x *TourServiceItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Tour) ProtoMessage() {}
+func (*TourServiceItem) ProtoMessage() {}
 
-func (x *Tour) ProtoReflect() protoreflect.Message {
-	mi := &file_infrastructure_grpc_tour_tour_proto_msgTypes[1]
+func (x *TourServiceItem) ProtoReflect() protoreflect.Message {
+	mi := &file_tour_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -100,55 +108,144 @@ func (x *Tour) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Tour.ProtoReflect.Descriptor instead.
-func (*Tour) Descriptor() ([]byte, []int) {
-	return file_infrastructure_grpc_tour_tour_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use TourServiceItem.ProtoReflect.Descriptor instead.
+func (*TourServiceItem) Descriptor() ([]byte, []int) {
+	return file_tour_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Tour) GetServiceName() string {
+func (x *TourServiceItem) GetServiceId() int32 {
+	if x != nil {
+		return x.ServiceId
+	}
+	return 0
+}
+
+func (x *TourServiceItem) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
 	}
 	return ""
 }
 
-var File_infrastructure_grpc_tour_tour_proto protoreflect.FileDescriptor
+func (x *TourServiceItem) GetPrice() float32 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
 
-var file_infrastructure_grpc_tour_tour_proto_rawDesc = []byte{
-	0x0a, 0x23, 0x69, 0x6e, 0x66, 0x72, 0x61, 0x73, 0x74, 0x72, 0x75, 0x63, 0x74, 0x75, 0x72, 0x65,
-	0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x74, 0x6f, 0x75, 0x72, 0x2f, 0x74, 0x6f, 0x75, 0x72, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x02, 0x70, 0x62, 0x22, 0x20, 0x0a, 0x0e, 0x47, 0x65, 0x74,
-	0x54, 0x6f, 0x75, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69,
-	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22, 0x28, 0x0a, 0x04, 0x54,
-	0x6f, 0x75, 0x72, 0x12, 0x20, 0x0a, 0x0b, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x4e, 0x61,
-	0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x4e, 0x61, 0x6d, 0x65, 0x32, 0x36, 0x0a, 0x0b, 0x54, 0x6f, 0x75, 0x72, 0x53, 0x65, 0x72,
-	0x76, 0x69, 0x63, 0x65, 0x12, 0x27, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x54, 0x6f, 0x75, 0x72, 0x12,
-	0x12, 0x2e, 0x70, 0x62, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x6f, 0x75, 0x72, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x08, 0x2e, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x75, 0x72, 0x42, 0x05, 0x5a,
-	0x03, 0x70, 0x62, 0x2f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+func (x *TourServiceItem) GetDuration() string {
+	if x != nil {
+		return x.Duration
+	}
+	return ""
+}
+
+func (x *TourServiceItem) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *TourServiceItem) GetImage() string {
+	if x != nil {
+		return x.Image
+	}
+	return ""
+}
+
+func (x *TourServiceItem) GetCreatedDate() string {
+	if x != nil {
+		return x.CreatedDate
+	}
+	return ""
+}
+
+func (x *TourServiceItem) GetIsDeleted() bool {
+	if x != nil {
+		return x.IsDeleted
+	}
+	return false
+}
+
+func (x *TourServiceItem) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *TourServiceItem) GetTourDesc() string {
+	if x != nil {
+		return x.TourDesc
+	}
+	return ""
+}
+
+func (x *TourServiceItem) GetAreaId() int32 {
+	if x != nil {
+		return x.AreaId
+	}
+	return 0
+}
+
+var File_tour_proto protoreflect.FileDescriptor
+
+var file_tour_proto_rawDesc = []byte{
+	0x0a, 0x0a, 0x74, 0x6f, 0x75, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x02, 0x70, 0x62,
+	0x22, 0x34, 0x0a, 0x14, 0x54, 0x6f, 0x75, 0x72, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49,
+	0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x73, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x22, 0xbd, 0x02, 0x0a, 0x0f, 0x54, 0x6f, 0x75, 0x72, 0x53,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x1c, 0x0a, 0x09, 0x73, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x73,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0b, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x73,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x70, 0x72,
+	0x69, 0x63, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x05, 0x70, 0x72, 0x69, 0x63, 0x65,
+	0x12, 0x1a, 0x0a, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07,
+	0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x63,
+	0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x69, 0x6d, 0x61, 0x67, 0x65, 0x12, 0x20, 0x0a, 0x0b,
+	0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x44, 0x61, 0x74, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0b, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x44, 0x61, 0x74, 0x65, 0x12, 0x1c,
+	0x0a, 0x09, 0x69, 0x73, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x18, 0x08, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x09, 0x69, 0x73, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x12, 0x14, 0x0a, 0x05,
+	0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74,
+	0x6c, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x74, 0x6f, 0x75, 0x72, 0x44, 0x65, 0x73, 0x63, 0x18, 0x0a,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x6f, 0x75, 0x72, 0x44, 0x65, 0x73, 0x63, 0x12, 0x16,
+	0x0a, 0x06, 0x61, 0x72, 0x65, 0x61, 0x49, 0x64, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06,
+	0x61, 0x72, 0x65, 0x61, 0x49, 0x64, 0x32, 0x4b, 0x0a, 0x0b, 0x54, 0x6f, 0x75, 0x72, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x3c, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x54, 0x6f, 0x75, 0x72,
+	0x42, 0x79, 0x49, 0x64, 0x12, 0x18, 0x2e, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x75, 0x72, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13,
+	0x2e, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x75, 0x72, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49,
+	0x74, 0x65, 0x6d, 0x42, 0x05, 0x5a, 0x03, 0x70, 0x62, 0x2f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
-	file_infrastructure_grpc_tour_tour_proto_rawDescOnce sync.Once
-	file_infrastructure_grpc_tour_tour_proto_rawDescData = file_infrastructure_grpc_tour_tour_proto_rawDesc
+	file_tour_proto_rawDescOnce sync.Once
+	file_tour_proto_rawDescData = file_tour_proto_rawDesc
 )
 
-func file_infrastructure_grpc_tour_tour_proto_rawDescGZIP() []byte {
-	file_infrastructure_grpc_tour_tour_proto_rawDescOnce.Do(func() {
-		file_infrastructure_grpc_tour_tour_proto_rawDescData = protoimpl.X.CompressGZIP(file_infrastructure_grpc_tour_tour_proto_rawDescData)
+func file_tour_proto_rawDescGZIP() []byte {
+	file_tour_proto_rawDescOnce.Do(func() {
+		file_tour_proto_rawDescData = protoimpl.X.CompressGZIP(file_tour_proto_rawDescData)
 	})
-	return file_infrastructure_grpc_tour_tour_proto_rawDescData
+	return file_tour_proto_rawDescData
 }
 
-var file_infrastructure_grpc_tour_tour_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_infrastructure_grpc_tour_tour_proto_goTypes = []any{
-	(*GetTourRequest)(nil), // 0: pb.GetTourRequest
-	(*Tour)(nil),           // 1: pb.Tour
+var file_tour_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_tour_proto_goTypes = []any{
+	(*TourServiceIdRequest)(nil), // 0: pb.TourServiceIdRequest
+	(*TourServiceItem)(nil),      // 1: pb.TourServiceItem
 }
-var file_infrastructure_grpc_tour_tour_proto_depIdxs = []int32{
-	0, // 0: pb.TourService.GetTour:input_type -> pb.GetTourRequest
-	1, // 1: pb.TourService.GetTour:output_type -> pb.Tour
+var file_tour_proto_depIdxs = []int32{
+	0, // 0: pb.TourService.GetTourById:input_type -> pb.TourServiceIdRequest
+	1, // 1: pb.TourService.GetTourById:output_type -> pb.TourServiceItem
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -156,27 +253,27 @@ var file_infrastructure_grpc_tour_tour_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_infrastructure_grpc_tour_tour_proto_init() }
-func file_infrastructure_grpc_tour_tour_proto_init() {
-	if File_infrastructure_grpc_tour_tour_proto != nil {
+func init() { file_tour_proto_init() }
+func file_tour_proto_init() {
+	if File_tour_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_infrastructure_grpc_tour_tour_proto_rawDesc,
+			RawDescriptor: file_tour_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_infrastructure_grpc_tour_tour_proto_goTypes,
-		DependencyIndexes: file_infrastructure_grpc_tour_tour_proto_depIdxs,
-		MessageInfos:      file_infrastructure_grpc_tour_tour_proto_msgTypes,
+		GoTypes:           file_tour_proto_goTypes,
+		DependencyIndexes: file_tour_proto_depIdxs,
+		MessageInfos:      file_tour_proto_msgTypes,
 	}.Build()
-	File_infrastructure_grpc_tour_tour_proto = out.File
-	file_infrastructure_grpc_tour_tour_proto_rawDesc = nil
-	file_infrastructure_grpc_tour_tour_proto_goTypes = nil
-	file_infrastructure_grpc_tour_tour_proto_depIdxs = nil
+	File_tour_proto = out.File
+	file_tour_proto_rawDesc = nil
+	file_tour_proto_goTypes = nil
+	file_tour_proto_depIdxs = nil
 }

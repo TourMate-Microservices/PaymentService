@@ -35,9 +35,9 @@ func (p *paymentRepo) CreatePaymentWithScopeId(payment entity.Payment, ctx conte
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, payment.GetPaymentTable()) + "CreatePaymentWithScopeId - "
 	var internalErr error = errors.New(noti.INTERNALL_ERR_MSG)
 	var query string = "INSERT INTO " + payment.GetPaymentTable() +
-		" (customerId, accountId, " +
-		"price, paymentMethod, createdAt) " +
-		"values (@p1, @p2, @p3, @p4, @p5)"
+		" (customerId, invoiceId, " +
+		"price, paymentMethod, createdAt, serviceId, status) " +
+		"values (@p1, @p2, @p3, @p4, @p5, @p6, @p7)"
 
 	tx, err := p.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -46,8 +46,8 @@ func (p *paymentRepo) CreatePaymentWithScopeId(payment entity.Payment, ctx conte
 	}
 	defer tx.Rollback()
 
-	_, err = tx.ExecContext(ctx, query, payment.CustomerId, payment.AccountId,
-		payment.Price, payment.PaymentMethod, payment.CreatedAt)
+	_, err = tx.ExecContext(ctx, query, payment.CustomerId, payment.InvoiceId,
+		payment.Price, payment.PaymentMethod, payment.CreatedAt, payment.ServiceId, payment.Status)
 	if err != nil {
 		p.logger.Println(errLogMsg + err.Error())
 		return -1, internalErr
@@ -70,13 +70,13 @@ func (p *paymentRepo) CreatePaymentWithScopeId(payment entity.Payment, ctx conte
 // CreatePayment implements repo.IPaymentRepo.
 func (p *paymentRepo) CreatePayment(payment entity.Payment, ctx context.Context) error {
 	var query string = "INSERT INTO " + payment.GetPaymentTable() +
-		" (customerId, accountId, " +
-		"price, paymentMethod, createdAt) " +
-		"values (@p1, @p2, @p3, @p4, @p5)"
+		" (customerId, invoiceId, " +
+		"price, paymentMethod, createdAt, serviceId, status) " +
+		"values (@p1, @p2, @p3, @p4, @p5, @p6, @p7)"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, payment.GetPaymentTable()) + "CreatePayment - "
 
-	if _, err := p.db.Exec(query, payment.CustomerId, payment.AccountId,
-		payment.Price, payment.PaymentMethod, payment.CreatedAt); err != nil {
+	if _, err := p.db.Exec(query, payment.CustomerId, payment.InvoiceId,
+		payment.Price, payment.PaymentMethod, payment.CreatedAt, payment.ServiceId, payment.Status); err != nil {
 
 		p.logger.Println(errLogMsg + err.Error())
 		return errors.New(noti.INTERNALL_ERR_MSG)
@@ -127,7 +127,7 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 		var x entity.Payment
 		if err := rows.Scan(
 			&x.PaymentId, &x.Price,
-			&x.CreatedAt, &x.PaymentMethod, &x.CustomerId, &x.AccountId); err != nil {
+			&x.CreatedAt, &x.PaymentMethod, &x.InvoiceId, &x.CustomerId, &x.ServiceId, &x.Status); err != nil {
 
 			p.logger.Println(errLogMsg + err.Error())
 			return nil, 0, errors.New(noti.INTERNALL_ERR_MSG)
@@ -152,7 +152,7 @@ func (p *paymentRepo) GetPaymentById(id int, ctx context.Context) (*entity.Payme
 
 	if err := p.db.QueryRow(query, id).Scan(
 		&res.PaymentId, &res.Price, &res.CreatedAt,
-		&res.PaymentMethod, &res.CustomerId, &res.CreatedAt); err != nil {
+		&res.PaymentMethod, &res.InvoiceId, &res.CustomerId, &res.ServiceId, &res.Status); err != nil {
 
 		if err == sql.ErrNoRows {
 			return nil, nil

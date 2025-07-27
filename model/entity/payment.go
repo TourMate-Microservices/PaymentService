@@ -8,8 +8,10 @@ type Payment struct {
 	Price         float64   `json:"price"`
 	CreatedAt     time.Time `json:"createdAt"`
 	PaymentMethod string    `json:"paymentMethod"`
-	AccountId     int       `json:"accountId"`
+	InvoiceId     int       `json:"invoiceId"`
 	CustomerId    int       `json:"customerId"`
+	ServiceId     int       `json:"serviceId"`
+	Status        string    `json:"status"` // e.g., "paid", "unpaid", "pending"
 }
 
 func (p Payment) GetPaymentTable() string {

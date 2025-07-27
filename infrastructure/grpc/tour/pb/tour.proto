@@ -4,17 +4,24 @@ package pb;
 
 option go_package = "pb/";
 
-// Request message with user ID
-message GetTourRequest {
-    int32 id = 1;
+message TourServiceIdRequest {
+  int32 serviceId = 1;
 }
 
-// Tour message
-message Tour {
-    string serviceName = 1;
+message TourServiceItem {
+  int32 serviceId = 1;
+  string serviceName = 2;
+  float price = 3;
+  string duration = 4;
+  string content = 5;
+  string image = 6;
+  string createdDate = 7;
+  bool isDeleted = 8;
+  string title = 9;
+  string tourDesc = 10;
+  int32 areaId = 11;
 }
 
-// gRPC service definition
 service TourService {
-    rpc GetTour(GetTourRequest) returns (Tour);
+  rpc GetTourById(TourServiceIdRequest ) returns (TourServiceItem);
 }
