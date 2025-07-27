@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-
-package pb;
+package userservice;
 
 option go_package = "pb/";
 

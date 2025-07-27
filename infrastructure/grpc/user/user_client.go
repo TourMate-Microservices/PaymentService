@@ -2,11 +2,9 @@ package user
 
 import (
 	"context"
-	"errors"
 	"log"
 	"os"
 	"tourmate/payment-service/constant/env"
-	"tourmate/payment-service/constant/noti"
 	grpc_connect "tourmate/payment-service/infrastructure/grpc"
 	"tourmate/payment-service/infrastructure/grpc/user/pb"
 	business_logic "tourmate/payment-service/interface/business_logic"
@@ -38,7 +36,7 @@ func (u *userService) GetCustomerById(ctx context.Context, req *pb.GetCustomerBy
 
 	if err != nil {
 		u.logger.Println(err)
-		return nil, errors.New(noti.INTERNALL_ERR_MSG)
+		return nil, err // Return the original gRPC error for the business logic to handle
 	}
 
 	return res, nil

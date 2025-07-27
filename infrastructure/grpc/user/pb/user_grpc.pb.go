@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_GetCustomerById_FullMethodName = "/pb.UserService/GetCustomerById"
+	UserService_GetCustomerById_FullMethodName = "/userservice.UserService/GetCustomerById"
 )
 
 // UserServiceClient is the client API for UserService service.
