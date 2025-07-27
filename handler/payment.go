@@ -113,7 +113,7 @@ func GetPaymentsByUser(ctx *gin.Context) {
 		return
 	}
 
-	id, _ := strconv.Atoi(ctx.Query("id"))
+	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	request.CustomerId = &id
 

@@ -94,7 +94,7 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 	var isHavePreviousCond bool = false
 
 	if req.Method != "" {
-		queryCondition += fmt.Sprintf("LOWER(paymentMethod) LIKE LOWER('%%%s%%') ", req.Method)
+		queryCondition += fmt.Sprintf("LOWER(paymentMethod) LIKE LOWER('%%%%%s%%%%')", req.Method)
 		isHavePreviousCond = true
 	}
 	if req.CustomerId != nil {
@@ -102,14 +102,12 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 			queryCondition += " AND "
 		}
 
-		queryCondition += fmt.Sprintf("customerId = '%d'", *req.CustomerId)
+		queryCondition += fmt.Sprintf("customerId = %d", *req.CustomerId)
 	}
 
 	if queryCondition == "WHERE " {
 		queryCondition = ""
 	}
-
-	p.logger.Println("Query condition: ", queryCondition)
 
 	var orderCondition string = generateOrderCondition(req.Request.FilterProp, req.Request.Order)
 	var query string = generateRetrieveQuery(table, queryCondition+orderCondition, payment_limit_records, req.Request.Page, false)
