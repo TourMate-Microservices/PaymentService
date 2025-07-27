@@ -243,10 +243,10 @@ func RemoveFeedback(ctx *gin.Context) {
 // @Failure      500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
 // @Router       /payment-service/api/v1/feedbacks/test-grpc/{id} [get]
 func TestGrpcFeedback(ctx *gin.Context) {
-	//cnn, err := grpc.Dial("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	cnn, err := grpc.Dial("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	// Method này ko đc thì undo commeent ở trên và thử lại
-	cnn, err := grpc.NewClient("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// cnn, err := grpc.NewClient("localhost:"+os.Getenv(env.PAYMENT_SERVICE_GRPC_PORT), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
 		return

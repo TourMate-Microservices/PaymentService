@@ -72,7 +72,7 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 	p.logger.Println("GetPayments Request: ", req)
 
 	if req.CustomerId != nil {
-		user, err := p.userService.GetUser(ctx, &pb.GetCustomerByIdRequest{
+		user, err := p.userService.GetCustomerById(ctx, &pb.GetCustomerByIdRequest{
 			CustomerId: int32(*req.CustomerId),
 		})
 

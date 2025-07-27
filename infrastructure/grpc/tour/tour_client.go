@@ -33,7 +33,7 @@ func GenerateTourService(logger *log.Logger) (business_logic.ITourService, error
 }
 
 // GetTour implements businesslogic.ITourService.
-func (t *tourService) GetTour(ctx context.Context, req *pb.TourServiceIdRequest) (*pb.TourServiceItem, error) {
+func (t *tourService) GetTourById(ctx context.Context, req *pb.TourServiceIdRequest) (*pb.TourServiceItem, error) {
 	res, err := pb.NewTourServiceClient(t.cnn).GetTourById(ctx, req)
 
 	if err != nil {
