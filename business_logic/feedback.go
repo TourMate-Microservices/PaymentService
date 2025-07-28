@@ -192,7 +192,7 @@ func (f *feedbackService) GetFeedbacks(req request.GetFeedbacksRequest, ctx cont
 		Data:        data,
 		TotalCount:  totalRecords,
 		Page:        req.Request.Page,
-		PerPage:     req.PageSize,
+		PerPage:     10,
 		TotalPages:  pages,
 		HasNext:     req.Request.Page < pages,
 		HasPrevious: req.Request.Page > 1,

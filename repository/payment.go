@@ -90,9 +90,10 @@ func (p *paymentRepo) CreatePayment(payment entity.Payment, ctx context.Context)
 }
 
 // GetAllPayments implements repo.IPaymentRepo.
-func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Context) (*[]entity.Payment, int, error) {
+func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Context) (*[]entity.Payment, int, int, error) {
 	var table string = entity.Payment{}.GetPaymentTable()
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, table) + "GetPayments - "
+	var limitRecords int = req.PageSize
 
 	var queryCondition string = "WHERE "
 	var isHavePreviousCond bool = false
@@ -114,14 +115,14 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 	}
 
 	var orderCondition string = generateOrderCondition(req.Request.FilterProp, req.Request.Order)
-	var query string = generateRetrieveQuery(table, queryCondition+orderCondition, payment_limit_records, req.Request.Page, false)
+	var query string = generateRetrieveQuery(table, queryCondition+orderCondition, limitRecords, req.Request.Page, false)
 
 	p.logger.Println("Query: ", query)
 
 	rows, err := p.db.Query(query)
 	if err != nil {
 		p.logger.Println(errLogMsg + err.Error())
-		return nil, 0, errors.New(noti.INTERNALL_ERR_MSG)
+		return nil, 0, 0, errors.New(noti.INTERNALL_ERR_MSG)
 	}
 
 	var res []entity.Payment
@@ -132,7 +133,7 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 			&x.CreatedAt, &x.PaymentMethod, &x.InvoiceId, &x.CustomerId, &x.ServiceId, &x.Status); err != nil {
 
 			p.logger.Println(errLogMsg + err.Error())
-			return nil, 0, errors.New(noti.INTERNALL_ERR_MSG)
+			return nil, 0, 0, errors.New(noti.INTERNALL_ERR_MSG)
 		}
 
 		res = append(res, x)
@@ -140,9 +141,9 @@ func (p *paymentRepo) GetPayments(req request.GetPaymentsRequest, ctx context.Co
 
 	// Track total records in table
 	var totalRecords int
-	p.db.QueryRow(generateRetrieveQuery(table, queryCondition, payment_limit_records, req.Request.Page, true)).Scan(&totalRecords)
+	p.db.QueryRow(generateRetrieveQuery(table, queryCondition, limitRecords, req.Request.Page, true)).Scan(&totalRecords)
 
-	return &res, caculateTotalPages(totalRecords, payment_limit_records), nil
+	return &res, caculateTotalPages(totalRecords, limitRecords), totalRecords, nil
 }
 
 // GetPaymentById implements repo.IPaymentRepo

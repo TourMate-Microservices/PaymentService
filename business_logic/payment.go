@@ -10,6 +10,7 @@ import (
 	"time"
 	domain_status "tourmate/payment-service/constant/domain_status"
 	payment_env "tourmate/payment-service/constant/env/payment"
+	mail_const "tourmate/payment-service/constant/mail_const"
 	"tourmate/payment-service/constant/noti"
 	"tourmate/payment-service/infrastructure/grpc/tour"
 	tour_pb "tourmate/payment-service/infrastructure/grpc/tour/pb"
@@ -74,6 +75,7 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 
 	req.Request.FilterProp = utils.AssignFilterProperty(req.Request.FilterProp)
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
+	req.PageSize = 10
 
 	p.logger.Println("GetPayments Request: ", req)
 
@@ -91,12 +93,16 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 		}
 	}
 
-	data, pages, err := p.paymentRepo.GetPayments(req, ctx)
+	data, pages, totalRecords, err := p.paymentRepo.GetPayments(req, ctx)
 
 	return response.PaginationDataResponse{
-		Data:       data,
-		Page:       req.Request.Page,
-		TotalPages: pages,
+		Data:        data,
+		Page:        req.Request.Page,
+		TotalPages:  pages,
+		TotalCount:  totalRecords,
+		PerPage:     req.PageSize,
+		HasNext:     req.Request.Page < pages,
+		HasPrevious: req.Request.Page > 1,
 	}, err
 }
 
@@ -121,7 +127,7 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 
 // CreatePayment implements businesslogic.IPaymentService.
 func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (*entity.Payment, error) {
-	return p.paymentRepo.CreatePayment(entity.Payment{
+	res, err := p.paymentRepo.CreatePayment(entity.Payment{
 		CustomerId:    req.CustomerId,
 		InvoiceId:     req.InvoiceId,
 		ServiceId:     req.ServiceId,
@@ -130,6 +136,29 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 		CreatedAt:     time.Now(),
 		Status:        domain_status.PAYMENT_PAID,
 	}, ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo, _ := p.userService.GetCustomerById(ctx, &user_pb.GetCustomerByIdRequest{
+		CustomerId: int32(req.CustomerId),
+	})
+
+	if userInfo != nil {
+		utils.SendMail(request.SendMailRequest{
+			Body: request.MailBody{ // Mail body
+				Subject:       noti.NOTI_PAYMENT_MAIL_SUBJECT,
+				Email:         userInfo.Email,
+				Username:      userInfo.FullName,
+				TransactionId: res.InvoiceId,
+			},
+			TemplatePath: mail_const.PAYMENT_CALLBACK_CANCEL_TEMPLATE,
+			Logger:       p.logger, // Logger
+		})
+	}
+
+	return res, nil
 }
 
 // // CreatePaymentDirect implements businesslogic.IPaymentService.

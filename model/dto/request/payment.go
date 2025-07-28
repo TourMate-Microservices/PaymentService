@@ -4,6 +4,7 @@ type GetPaymentsRequest struct {
 	Request    SearchPaginationRequest `json:"request"`
 	Method     string                  `json:"method" form:"method"`
 	CustomerId *int                    `json:"customerId" form:"customerId" binding:"omitempty,gt=0"`
+	PageSize   int
 }
 
 type CreatePaymentRequest struct {
