@@ -3,14 +3,15 @@ package entity
 import "time"
 
 type Revenue struct {
-	RevenueId          int       `json:"revenue_id"`
-	TourGuideId        int       `json:"tour_guide_id"`
-	InvoiceId          int       `json:"invoice_id"`
-	TotalAmount        float64   `json:"total_amount"`
-	ActualReceived     float64   `json:"acutal_recieved"`
-	PlatformCommission float64   `json:"platform_commision"`
-	PaymentStatus      bool      `json:"payment_status"`
-	CreatedAt          time.Time `json:"created_at"`
+	RevenueId          int       `json:"revenueId"`
+	PaymentId          int       `json:"paymentId"`
+	TourGuideId        int       `json:"tourGuideId"`
+	InvoiceId          int       `json:"invoiceId"`
+	TotalAmount        float64   `json:"totalAmount"`
+	ActualReceived     float64   `json:"actualReceived"`
+	PlatformCommission float64   `json:"platformCommission"`
+	PaymentStatus      bool      `json:"paymentStatus"`
+	CreatedAt          time.Time `json:"createdAt"`
 }
 
 func (r Revenue) GetRevenueTable() string {
