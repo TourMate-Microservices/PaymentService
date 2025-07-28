@@ -1,9 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.tourmate.grpc.tour";
-
-option java_outer_classname = "TourServiceProto";
-option java_multiple_files = true;
+package tourservice;
 
 option go_package = "pb/";
 

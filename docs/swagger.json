@@ -881,7 +881,7 @@
                     "200": {
                         "description": "success",
                         "schema": {
-                            "$ref": "#/definitions/response.MessageApiResponse"
+                            "$ref": "#/definitions/entity.Payment"
                         }
                     },
                     "400": {
@@ -1064,6 +1064,58 @@
                         "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/payments/with-service-name/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a single payment record with service information by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Get payment with service information by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.PaymentWithServiceNameResponse"
                         }
                     },
                     "400": {
@@ -1431,6 +1483,26 @@
                 },
                 "total_pages": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.PaymentWithServiceNameResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "paymentId": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "serviceId": {
+                    "type": "integer"
+                },
+                "serviceName": {
+                    "type": "string"
                 }
             }
         },

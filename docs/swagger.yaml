@@ -198,6 +198,19 @@ definitions:
       total_pages:
         type: integer
     type: object
+  response.PaymentWithServiceNameResponse:
+    properties:
+      createdAt:
+        type: string
+      paymentId:
+        type: integer
+      price:
+        type: number
+      serviceId:
+        type: integer
+      serviceName:
+        type: string
+    type: object
   response.UrlResponse:
     properties:
       url:
@@ -803,7 +816,7 @@ paths:
         "200":
           description: success
           schema:
-            $ref: '#/definitions/response.MessageApiResponse'
+            $ref: '#/definitions/entity.Payment'
         "400":
           description: Invalid data. Please try again.
           schema:
@@ -939,6 +952,41 @@ paths:
       security:
       - BearerAuth: []
       summary: Update a payment record
+      tags:
+      - payments
+  /payment-service/api/v1/payments/with-service-name/{id}:
+    get:
+      description: Retrieve a single payment record with service information by its
+        ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaymentWithServiceNameResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get payment with service information by ID
       tags:
       - payments
 schemes:

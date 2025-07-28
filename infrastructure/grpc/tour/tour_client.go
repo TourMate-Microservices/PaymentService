@@ -2,11 +2,9 @@ package tour
 
 import (
 	"context"
-	"errors"
 	"log"
 	"os"
 	"tourmate/payment-service/constant/env"
-	"tourmate/payment-service/constant/noti"
 	grpc_connect "tourmate/payment-service/infrastructure/grpc"
 	"tourmate/payment-service/infrastructure/grpc/tour/pb"
 	business_logic "tourmate/payment-service/interface/business_logic"
@@ -38,7 +36,7 @@ func (t *tourService) GetTourById(ctx context.Context, req *pb.TourServiceIdRequ
 
 	if err != nil {
 		t.logger.Println(err)
-		return nil, errors.New(noti.INTERNALL_ERR_MSG)
+		return nil, err // Return the original gRPC error for the business logic to handle
 	}
 
 	return res, nil

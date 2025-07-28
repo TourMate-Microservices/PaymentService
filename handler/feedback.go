@@ -290,18 +290,32 @@ func GetTourGuideFeedbacks(ctx *gin.Context) {
 	tourGuideId, _ := strconv.Atoi(ctx.Param("id"))
 	request.TourGuideId = tourGuideId
 
+	// Set default values if not provided
+	if request.PageSize <= 0 {
+		request.PageSize = 10
+	}
+	if request.PageIndex <= 0 {
+		request.PageIndex = 1
+	}
+
+	// Initialize business logic service  
 	service, err := business_logic.GenerateFeedbackService()
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
 		return
 	}
 
+	// Call GetTourGuideFeedbacks (with graceful gRPC fallback handling)
 	res, err := service.GetTourGuideFeedbacks(request, ctx)
+	if err != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
+		return
+	}
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,
 		Data2:    res,
-		ErrMsg:   err,
+		ErrMsg:   nil,
 		Context:  ctx,
 		PostType: action_type.NON_POST,
 	})

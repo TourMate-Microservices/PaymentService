@@ -11,7 +11,7 @@ import (
 	"tourmate/payment-service/infrastructure/grpc/tour"
 	tour_pb "tourmate/payment-service/infrastructure/grpc/tour/pb"
 	"tourmate/payment-service/infrastructure/grpc/user"
-	"tourmate/payment-service/infrastructure/grpc/user/pb"
+	user_pb "tourmate/payment-service/infrastructure/grpc/user/pb"
 
 	business_logic "tourmate/payment-service/interface/business_logic"
 	"tourmate/payment-service/interface/repo"
@@ -62,6 +62,8 @@ func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedback
 		req.TourGuideId = 1
 	}
 
+	f.logger.Printf("GetTourGuideFeedbacks: Starting with TourGuideId=%d, PageIndex=%d, PageSize=%d", req.TourGuideId, req.PageIndex, req.PageSize)
+
 	feedbacks, pages, totalRecords, err := f.feedbackRepo.GetFeedbacks(request.GetFeedbacksRequest{
 		Request: request.SearchPaginationRequest{
 			Page:       req.PageIndex,
@@ -73,56 +75,75 @@ func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedback
 	}, ctx)
 
 	if err != nil {
+		f.logger.Printf("GetTourGuideFeedbacks: Database error: %v", err)
 		return response.PaginationDataResponse{}, err
 	}
 
+	f.logger.Printf("GetTourGuideFeedbacks: Found %d feedbacks", len(*feedbacks))
+
 	var data []response.FeedbackResponse
-	for _, feedback := range *feedbacks {
-		customerInfo, err := f.userService.GetCustomerById(ctx, &pb.GetCustomerByIdRequest{
-			CustomerId: int32(feedback.CustomerId),
-		})
+	for i, feedback := range *feedbacks {
+		f.logger.Printf("GetTourGuideFeedbacks: Processing feedback %d with CustomerId=%d, ServiceId=%d", i+1, feedback.CustomerId, feedback.ServiceId)
 
-		if err != nil {
-			return response.PaginationDataResponse{}, err
-		}
-
-		tourInfo, err := f.tourService.GetTourById(ctx, &tour_pb.TourServiceIdRequest{
-			ServiceId: int32(feedback.ServiceId),
-		})
-
-		if err != nil {
-			return response.PaginationDataResponse{}, err
-		}
-
-		data = append(data, response.FeedbackResponse{
+		// Initialize response with basic feedback data
+		feedbackResponse := response.FeedbackResponse{
 			FeedbackId:  feedback.FeedbackId,
 			CustomerId:  feedback.CustomerId,
-			FullName:    customerInfo.FullName,
-			Image:       customerInfo.Image,
+			FullName:    "Unknown Customer", // Default value
+			Image:       "",                 // Default value
 			Rating:      feedback.Rating,
 			Content:     feedback.Content,
 			CreatedDate: feedback.CreatedDate,
 			InvoiceId:   feedback.InvoiceId,
 			ServiceId:   feedback.ServiceId,
-			ServiceName: tourInfo.ServiceName,
+			ServiceName: "Unknown Service", // Default value
+		}
+
+		// Try to get customer information via gRPC
+		customerInfo, err := f.userService.GetCustomerById(ctx, &user_pb.GetCustomerByIdRequest{
+			CustomerId: int32(feedback.CustomerId),
 		})
+
+		if err != nil {
+			f.logger.Printf("GetTourGuideFeedbacks: UserService gRPC call failed for CustomerId=%d: %v", feedback.CustomerId, err)
+		} else if customerInfo != nil {
+			f.logger.Printf("GetTourGuideFeedbacks: Got customer info for CustomerId=%d: %s", feedback.CustomerId, customerInfo.FullName)
+			feedbackResponse.FullName = customerInfo.FullName
+			feedbackResponse.Image = customerInfo.Image
+		}
+
+		// Try to get tour information via gRPC
+		tourInfo, err := f.tourService.GetTourById(ctx, &tour_pb.TourServiceIdRequest{
+			ServiceId: int32(feedback.ServiceId),
+		})
+
+		if err != nil {
+			f.logger.Printf("GetTourGuideFeedbacks: TourService gRPC call failed for ServiceId=%d: %v", feedback.ServiceId, err)
+		} else if tourInfo != nil {
+			f.logger.Printf("GetTourGuideFeedbacks: Got tour info for ServiceId=%d: %s", feedback.ServiceId, tourInfo.ServiceName)
+			feedbackResponse.ServiceName = tourInfo.ServiceName
+		}
+
+		data = append(data, feedbackResponse)
 	}
+
+	f.logger.Printf("GetTourGuideFeedbacks: Successfully processed %d feedbacks", len(data))
 
 	return response.PaginationDataResponse{
 		Data:        data,
 		TotalCount:  totalRecords,
 		Page:        req.PageIndex,
-		PerPage:     entity.Feedback{}.GetFeedbackLimitRecords(),
+		PerPage:     req.PageSize,
 		TotalPages:  pages,
 		HasNext:     req.PageIndex < pages,
 		HasPrevious: req.PageIndex > 1,
-	}, err
+	}, nil
 }
 
 // CreateFeedback implements businesslogic.IFeedbackService.
 func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error {
 	// Verify user data (implement later)
-	user, err := f.userService.GetCustomerById(ctx, &pb.GetCustomerByIdRequest{
+	user, err := f.userService.GetCustomerById(ctx, &user_pb.GetCustomerByIdRequest{
 		CustomerId: int32(req.CustomerId),
 	})
 

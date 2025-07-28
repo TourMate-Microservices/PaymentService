@@ -28,6 +28,7 @@ func InitializePaymentHandlerRoute(server *gin.Engine, service string) {
 	authGroup.GET("/customer/:id", handler.GetPaymentsByUser)
 	authGroup.GET("/:id", handler.GetPaymentById)
 	authGroup.POST("/create", handler.CreatePayment)
+	authGroup.GET("/with-service-name/:id", handler.GetPaymentWithService)
 
 	var norGroup = server.Group(contextPath)
 	norGroup.POST("/create-embedded-payment-link", handler.CreatePayosTransaction)

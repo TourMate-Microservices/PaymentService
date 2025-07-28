@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TourService_GetTourById_FullMethodName = "/TourService/GetTourById"
+	TourService_GetTourById_FullMethodName = "/tourservice.TourService/GetTourById"
 )
 
 // TourServiceClient is the client API for TourService service.

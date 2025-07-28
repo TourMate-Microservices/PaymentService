@@ -11,8 +11,11 @@ import (
 	domain_status "tourmate/payment-service/constant/domain_status"
 	payment_env "tourmate/payment-service/constant/env/payment"
 	"tourmate/payment-service/constant/noti"
+	"tourmate/payment-service/infrastructure/grpc/tour"
+	tour_pb "tourmate/payment-service/infrastructure/grpc/tour/pb"
 	"tourmate/payment-service/infrastructure/grpc/user"
-	"tourmate/payment-service/infrastructure/grpc/user/pb"
+	user_pb "tourmate/payment-service/infrastructure/grpc/user/pb"
+
 	business_logic "tourmate/payment-service/interface/business_logic"
 	"tourmate/payment-service/interface/repo"
 	"tourmate/payment-service/model/dto/request"
@@ -30,13 +33,15 @@ import (
 type paymentService struct {
 	logger      *log.Logger
 	userService business_logic.IUserService
+	tourService business_logic.ITourService
 	paymentRepo repo.IPaymentRepo
 }
 
-func InitializePaymentService(db *sql.DB, userService business_logic.IUserService, logger *log.Logger) business_logic.IPaymentService {
+func InitializePaymentService(db *sql.DB, userService business_logic.IUserService, tourService business_logic.ITourService, logger *log.Logger) business_logic.IPaymentService {
 	return &paymentService{
 		logger:      logger,
 		userService: userService,
+		tourService: tourService,
 		paymentRepo: repository.InitializePaymentRepo(db, logger),
 	}
 }
@@ -51,8 +56,9 @@ func GeneratePaymentService() (business_logic.IPaymentService, error) {
 	}
 
 	userService, _ := user.GenerateUserService(logger)
+	tourService, _ := tour.GenerateTourService(logger)
 
-	return InitializePaymentService(cnn, userService, logger), nil
+	return InitializePaymentService(cnn, userService, tourService, logger), nil
 }
 
 // GetPaymentById implements businesslogic.IPaymentService.
@@ -72,7 +78,7 @@ func (p *paymentService) GetPayments(req request.GetPaymentsRequest, ctx context
 	p.logger.Println("GetPayments Request: ", req)
 
 	if req.CustomerId != nil {
-		user, err := p.userService.GetCustomerById(ctx, &pb.GetCustomerByIdRequest{
+		user, err := p.userService.GetCustomerById(ctx, &user_pb.GetCustomerByIdRequest{
 			CustomerId: int32(*req.CustomerId),
 		})
 
@@ -114,7 +120,7 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 }
 
 // CreatePayment implements businesslogic.IPaymentService.
-func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) error {
+func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (*entity.Payment, error) {
 	return p.paymentRepo.CreatePayment(entity.Payment{
 		CustomerId:    req.CustomerId,
 		InvoiceId:     req.InvoiceId,
@@ -314,27 +320,83 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 
 // CreatePayosTransaction implements businesslogic.IPaymentService.
 func (p *paymentService) CreatePayosTransaction(req request.CreatePayosTransactionRequest, ctx context.Context) (response.UrlResponse, error) {
-	var description string = fmt.Sprintf("Transaction for Invoice %d", req.InvoiceId)
+	var description string = fmt.Sprintf("Invoice %d", req.InvoiceId)
 	p.logger.Println("Description: ", description)
+	p.logger.Printf("Request data - Amount: %f, InvoiceId: %d", req.Amount, req.InvoiceId)
+
+	// Validate input data
+	if req.Amount <= 0 {
+		p.logger.Println("Invalid amount: amount must be greater than 0")
+		return response.UrlResponse{}, errors.New("amount must be greater than 0")
+	}
+
+	if req.InvoiceId <= 0 {
+		p.logger.Println("Invalid invoice ID: invoice ID must be greater than 0")
+		return response.UrlResponse{}, errors.New("invoice ID must be greater than 0")
+	}
+
+	// Convert amount to integer (PayOS expects amount in VND, not cents for VN)
+	amount := int(req.Amount)
+
+	// Generate unique order code
+	orderCode := int64(utils.GenerateNumber())
+	p.logger.Printf("Generated OrderCode: %d", orderCode)
 
 	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
-		Amount:    int(req.Amount), // PayOS expects amount in cents
-		OrderCode: int64(utils.GenerateNumber()),
+		Amount:    amount,
+		OrderCode: orderCode,
 		Items: []payos.Item{
 			{
 				Name:     description,
 				Quantity: 1,
-				Price:    int(req.Amount), // Convert to cents
+				Price:    amount,
 			},
 		},
 		Description: description,
-		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS) + fmt.Sprintf("%d", req.InvoiceId),
-		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL) + fmt.Sprintf("%d", req.InvoiceId),
+		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS),
+		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL),
 	})
+
+	if err != nil {
+		p.logger.Printf("Failed to create PayOS link: %v", err)
+		return response.UrlResponse{}, fmt.Errorf("failed to create payment link: %v", err)
+	}
 
 	p.logger.Println("Payos link: ", data.CheckoutUrl)
 
 	return response.UrlResponse{
 		Url: data.CheckoutUrl,
-	}, err
+	}, nil
+}
+
+// GetPaymentWithService implements businesslogic.IPaymentService.
+func (p *paymentService) GetPaymentWithService(id int, ctx context.Context) (*response.PaymentWithServiceNameResponse, error) {
+	payment, err := p.paymentRepo.GetPaymentById(id, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if payment == nil {
+		return nil, errors.New(noti.GENERIC_ERROR_WARN_MSG)
+	}
+
+	serviceInfo, err := p.tourService.GetTourById(ctx, &tour_pb.TourServiceIdRequest{
+		ServiceId: int32(payment.ServiceId),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if serviceInfo == nil {
+		return nil, errors.New(noti.GENERIC_ERROR_WARN_MSG)
+	}
+
+	return &response.PaymentWithServiceNameResponse{
+		PaymentId:   payment.PaymentId,
+		Price:       payment.Price,
+		ServiceId:   payment.ServiceId,
+		ServiceName: serviceInfo.ServiceName,
+		CreatedAt:   payment.CreatedAt,
+	}, nil
 }

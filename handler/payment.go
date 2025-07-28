@@ -169,7 +169,7 @@ func UpdatePayment(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        request body request.CreatePaymentRequest true "Create Payment Request"
-// @Success 200 {object} response.MessageApiResponse "success"
+// @Success 200 {object} entity.Payment "success"
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -187,8 +187,13 @@ func CreatePayment(ctx *gin.Context) {
 		return
 	}
 
+	// Create payment and get the created payment back
+	payment, err := service.CreatePayment(request, ctx)
+
 	utils.ProcessResponse(response.ApiResponse{
-		ErrMsg:   service.CreatePayment(request, ctx),
+		Data1:    payment,
+		Data2:    payment,
+		ErrMsg:   err,
 		Context:  ctx,
 		PostType: action_type.NON_POST,
 	})
@@ -218,6 +223,38 @@ func CreatePayosTransaction(ctx *gin.Context) {
 	}
 
 	res, err := service.CreatePayosTransaction(request, ctx)
+
+	utils.ProcessResponse(response.ApiResponse{
+		Data1:    res,
+		Data2:    res,
+		ErrMsg:   err,
+		Context:  ctx,
+		PostType: action_type.NON_POST,
+	})
+}
+
+// GetPaymentWithService godoc
+// @Summary Get payment with service information by ID
+// @Description Retrieve a single payment record with service information by its ID
+// @Tags payments
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Payment ID"
+// @Success 200 {object} response.PaymentWithServiceNameResponse
+// @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
+// @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
+// @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
+// @Router /payment-service/api/v1/payments/with-service-name/{id} [get]
+func GetPaymentWithService(ctx *gin.Context) {
+	service, err := business_logic.GeneratePaymentService()
+	if err != nil {
+		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))
+		return
+	}
+
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	res, err := service.GetPaymentWithService(id, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
 		Data1:    res,
