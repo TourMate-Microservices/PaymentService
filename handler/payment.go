@@ -169,7 +169,7 @@ func UpdatePayment(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        request body request.CreatePaymentRequest true "Create Payment Request"
-// @Success 200 {object} response.MessageApiResponse "success"
+// @Success 200 {object} entity.Payment "success"
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -187,8 +187,13 @@ func CreatePayment(ctx *gin.Context) {
 		return
 	}
 
+	// Create payment and get the created payment back
+	payment, err := service.CreatePayment(request, ctx)
+
 	utils.ProcessResponse(response.ApiResponse{
-		ErrMsg:   service.CreatePayment(request, ctx),
+		Data1:    payment,
+		Data2:    payment,
+		ErrMsg:   err,
 		Context:  ctx,
 		PostType: action_type.NON_POST,
 	})

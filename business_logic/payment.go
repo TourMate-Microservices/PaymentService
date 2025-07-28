@@ -114,7 +114,7 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 }
 
 // CreatePayment implements businesslogic.IPaymentService.
-func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) error {
+func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (*entity.Payment, error) {
 	return p.paymentRepo.CreatePayment(entity.Payment{
 		CustomerId:    req.CustomerId,
 		InvoiceId:     req.InvoiceId,
@@ -314,27 +314,51 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 
 // CreatePayosTransaction implements businesslogic.IPaymentService.
 func (p *paymentService) CreatePayosTransaction(req request.CreatePayosTransactionRequest, ctx context.Context) (response.UrlResponse, error) {
-	var description string = fmt.Sprintf("Transaction for Invoice %d", req.InvoiceId)
+	var description string = fmt.Sprintf("Invoice %d", req.InvoiceId)
 	p.logger.Println("Description: ", description)
+	p.logger.Printf("Request data - Amount: %f, InvoiceId: %d", req.Amount, req.InvoiceId)
+
+	// Validate input data
+	if req.Amount <= 0 {
+		p.logger.Println("Invalid amount: amount must be greater than 0")
+		return response.UrlResponse{}, errors.New("amount must be greater than 0")
+	}
+
+	if req.InvoiceId <= 0 {
+		p.logger.Println("Invalid invoice ID: invoice ID must be greater than 0")
+		return response.UrlResponse{}, errors.New("invoice ID must be greater than 0")
+	}
+
+	// Convert amount to integer (PayOS expects amount in VND, not cents for VN)
+	amount := int(req.Amount)
+	
+	// Generate unique order code
+	orderCode := int64(utils.GenerateNumber())
+	p.logger.Printf("Generated OrderCode: %d", orderCode)
 
 	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
-		Amount:    int(req.Amount), // PayOS expects amount in cents
-		OrderCode: int64(utils.GenerateNumber()),
+		Amount:    amount,
+		OrderCode: orderCode,
 		Items: []payos.Item{
 			{
 				Name:     description,
 				Quantity: 1,
-				Price:    int(req.Amount), // Convert to cents
+				Price:    amount,
 			},
 		},
 		Description: description,
-		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS) + fmt.Sprintf("%d", req.InvoiceId),
-		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL) + fmt.Sprintf("%d", req.InvoiceId),
+		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS),
+		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL),
 	})
+
+	if err != nil {
+		p.logger.Printf("Failed to create PayOS link: %v", err)
+		return response.UrlResponse{}, fmt.Errorf("failed to create payment link: %v", err)
+	}
 
 	p.logger.Println("Payos link: ", data.CheckoutUrl)
 
 	return response.UrlResponse{
 		Url: data.CheckoutUrl,
-	}, err
+	}, nil
 }

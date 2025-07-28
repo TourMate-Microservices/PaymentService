@@ -68,21 +68,25 @@ func (p *paymentRepo) CreatePaymentWithScopeId(payment entity.Payment, ctx conte
 }
 
 // CreatePayment implements repo.IPaymentRepo.
-func (p *paymentRepo) CreatePayment(payment entity.Payment, ctx context.Context) error {
+func (p *paymentRepo) CreatePayment(payment entity.Payment, ctx context.Context) (*entity.Payment, error) {
 	var query string = "INSERT INTO " + payment.GetPaymentTable() +
 		" (customerId, invoiceId, " +
 		"price, paymentMethod, createdAt, serviceId, status) " +
+		"OUTPUT INSERTED.paymentId " +
 		"values (@p1, @p2, @p3, @p4, @p5, @p6, @p7)"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, payment.GetPaymentTable()) + "CreatePayment - "
 
-	if _, err := p.db.Exec(query, payment.CustomerId, payment.InvoiceId,
-		payment.Price, payment.PaymentMethod, payment.CreatedAt, payment.ServiceId, payment.Status); err != nil {
+	var paymentId int
+	if err := p.db.QueryRow(query, payment.CustomerId, payment.InvoiceId,
+		payment.Price, payment.PaymentMethod, payment.CreatedAt, payment.ServiceId, payment.Status).Scan(&paymentId); err != nil {
 
 		p.logger.Println(errLogMsg + err.Error())
-		return errors.New(noti.INTERNALL_ERR_MSG)
+		return nil, errors.New(noti.INTERNALL_ERR_MSG)
 	}
 
-	return nil
+	// Set the generated ID and return the payment
+	payment.PaymentId = paymentId
+	return &payment, nil
 }
 
 // GetAllPayments implements repo.IPaymentRepo.
