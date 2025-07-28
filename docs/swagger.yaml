@@ -47,15 +47,15 @@ definitions:
     type: object
   entity.PlatformFeedback:
     properties:
-      account_id:
-        type: integer
       content:
         type: string
-      created_at:
+      createdAt:
         type: string
-      feedback_id:
+      customerId:
         type: integer
-      payment_id:
+      feedbackId:
+        type: integer
+      paymentId:
         type: integer
       rating:
         type: integer
@@ -121,17 +121,18 @@ definitions:
     type: object
   request.CreatePlatformFeedbackRequest:
     properties:
-      account_id:
-        type: integer
       content:
         type: string
-      payment_id:
+      customerId:
+        type: integer
+      paymentId:
         type: integer
       rating:
+        maximum: 5
         type: integer
     required:
-    - account_id
-    - payment_id
+    - customerId
+    - paymentId
     - rating
     type: object
   request.RemoveFeedbackRequest:
@@ -165,17 +166,17 @@ definitions:
     type: object
   request.UpdatePlatformFeedbackRequest:
     properties:
-      actor_id:
+      actorId:
         type: integer
       content:
         type: string
-      feedback_id:
+      feedbackId:
         type: integer
       rating:
         type: integer
     required:
-    - actor_id
-    - feedback_id
+    - actorId
+    - feedbackId
     type: object
   response.MessageApiResponse:
     properties:
@@ -229,29 +230,33 @@ paths:
       - application/json
       description: Retrieve a paginated list of platform feedbacks with optional filters
       parameters:
-      - description: Page number
-        in: query
-        name: page_number
-        type: integer
       - description: Search keyword
         in: query
         name: keyword
         type: string
       - description: Filter property
         in: query
-        name: filter_prop
+        name: filterProp
         type: string
       - description: Sort order (ASC or DESC)
         in: query
         name: order
         type: string
-      - description: Account ID
+      - description: Customer ID
         in: query
-        name: account_id
+        name: customerId
         type: integer
       - description: Rating
         in: query
         name: rating
+        type: integer
+      - description: Page index
+        in: query
+        name: pageIndex
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
         type: integer
       produces:
       - application/json
@@ -365,20 +370,16 @@ paths:
       summary: Get a single platform feedback by ID
       tags:
       - platform-feedbacks
-  /api/v1/platform-feedbacks/user/{id}:
+  /api/v1/platform-feedbacks/customer/{id}:
     get:
       consumes:
       - application/json
       description: Retrieve platform feedbacks filtered by customer ID
       parameters:
-      - description: Account ID
+      - description: Customer ID
         in: path
         name: id
         required: true
-        type: integer
-      - description: Page number
-        in: query
-        name: page_number
         type: integer
       - description: Search keyword
         in: query
@@ -386,7 +387,7 @@ paths:
         type: string
       - description: Filter property
         in: query
-        name: filter_prop
+        name: filterProp
         type: string
       - description: Sort order (ASC or DESC)
         in: query
@@ -395,6 +396,14 @@ paths:
       - description: Rating
         in: query
         name: rating
+        type: integer
+      - description: Page index
+        in: query
+        name: pageIndex
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
         type: integer
       produces:
       - application/json

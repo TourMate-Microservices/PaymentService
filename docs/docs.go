@@ -35,12 +35,6 @@ const docTemplate = `{
                 "summary": "Get all platform feedbacks",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
-                        "in": "query"
-                    },
-                    {
                         "type": "string",
                         "description": "Search keyword",
                         "name": "keyword",
@@ -49,7 +43,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Filter property",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
@@ -60,14 +54,26 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "Customer ID",
+                        "name": "customerId",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "Rating",
                         "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page index",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],
@@ -195,7 +201,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/platform-feedbacks/user/{id}": {
+        "/api/v1/platform-feedbacks/customer/{id}": {
             "get": {
                 "security": [
                     {
@@ -216,16 +222,10 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Account ID",
+                        "description": "Customer ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
-                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -236,7 +236,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Filter property",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
@@ -249,6 +249,18 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Rating",
                         "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page index",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],
@@ -1264,19 +1276,19 @@ const docTemplate = `{
         "entity.PlatformFeedback": {
             "type": "object",
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "content": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "feedback_id": {
+                "customerId": {
                     "type": "integer"
                 },
-                "payment_id": {
+                "feedbackId": {
+                    "type": "integer"
+                },
+                "paymentId": {
                     "type": "integer"
                 },
                 "rating": {
@@ -1372,22 +1384,23 @@ const docTemplate = `{
         "request.CreatePlatformFeedbackRequest": {
             "type": "object",
             "required": [
-                "account_id",
-                "payment_id",
+                "customerId",
+                "paymentId",
                 "rating"
             ],
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "content": {
                     "type": "string"
                 },
-                "payment_id": {
+                "customerId": {
+                    "type": "integer"
+                },
+                "paymentId": {
                     "type": "integer"
                 },
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5
                 }
             }
         },
@@ -1438,17 +1451,17 @@ const docTemplate = `{
         "request.UpdatePlatformFeedbackRequest": {
             "type": "object",
             "required": [
-                "actor_id",
-                "feedback_id"
+                "actorId",
+                "feedbackId"
             ],
             "properties": {
-                "actor_id": {
+                "actorId": {
                     "type": "integer"
                 },
                 "content": {
                     "type": "string"
                 },
-                "feedback_id": {
+                "feedbackId": {
                     "type": "integer"
                 },
                 "rating": {

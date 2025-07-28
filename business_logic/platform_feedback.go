@@ -46,11 +46,11 @@ func (p *platformFeedbackService) CreatePlatformFeedback(req request.CreatePlatf
 
 	// Insert to database
 	return p.platformFeedbackRepo.CreatePlatformFeedback(entity.PlatformFeedback{
-		AccountId: req.AccountId,
-		PaymentId: req.PaymentId,
-		Content:   req.Content,
-		Rating:    req.Rating,
-		CreatedAt: time.Now(),
+		CustomerId: req.CustomerId,
+		PaymentId:  req.PaymentId,
+		Content:    req.Content,
+		Rating:     req.Rating,
+		CreatedAt:  time.Now(),
 	}, ctx)
 }
 
@@ -61,10 +61,6 @@ func (p *platformFeedbackService) GetPlatformFeedbackById(id int, ctx context.Co
 
 // GetPlatformFeedbacks implements businesslogic.IPlatformFeedbackService.
 func (p *platformFeedbackService) GetPlatformFeedbacks(req request.GetPlatformFeedbacksRequest, ctx context.Context) (response.PaginationDataResponse, error) {
-	if req.Request.Page < 1 {
-		req.Request.Page = 1
-	}
-
 	req.Request.FilterProp = utils.AssignFilterProperty(req.Request.FilterProp)
 	req.Request.Order = utils.AssignOrder(req.Request.Order)
 
@@ -73,11 +69,11 @@ func (p *platformFeedbackService) GetPlatformFeedbacks(req request.GetPlatformFe
 	return response.PaginationDataResponse{
 		Data:        data,
 		TotalCount:  totalRecords,
-		Page:        req.Request.Page,
+		Page:        *req.PageIndex,
 		PerPage:     entity.PlatformFeedback{}.GetPlatformFeedbackLimitRecords(),
 		TotalPages:  pages,
-		HasNext:     req.Request.Page < pages,
-		HasPrevious: req.Request.Page > 1,
+		HasNext:     *req.PageIndex < pages,
+		HasPrevious: *req.PageIndex > 1,
 	}, err
 }
 

@@ -18,12 +18,13 @@ import (
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        page_number query int false "Page number"
 // @Param        keyword     query string false "Search keyword"
-// @Param        filter_prop query string false "Filter property"
+// @Param        filterProp query string false "Filter property"
 // @Param        order       query string false "Sort order (ASC or DESC)"
-// @Param        account_id  query int false "Account ID"
+// @Param        customerId  query int false "Customer ID"
 // @Param        rating      query int false "Rating"
+// @Param        pageIndex  query int false "Page index"
+// @Param        pageSize   query int false "Page size"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Router       /api/v1/platform-feedbacks [get]
@@ -58,16 +59,17 @@ func GetPlatformFeedbacks(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        id          path int  true  "Account ID"
-// @Param        page_number query int false "Page number"
+// @Param        id          path int  true  "Customer ID"
 // @Param        keyword     query string false "Search keyword"
-// @Param        filter_prop query string false "Filter property"
+// @Param        filterProp query string false "Filter property"
 // @Param        order       query string false "Sort order (ASC or DESC)"
 // @Param        rating      query int false "Rating"
+// @Param        pageIndex  query int false "Page index"
+// @Param        pageSize   query int false "Page size"
 // @Success      200 {object} response.PaginationDataResponse
 // @Failure      400 {object} response.MessageApiResponse "Invalid data. Please try again."
-// @Router       /api/v1/platform-feedbacks/user/{id} [get]
-func GetPlatformFeedbacksByUser(ctx *gin.Context) {
+// @Router       /api/v1/platform-feedbacks/customer/{id} [get]
+func GetPlatformFeedbacksByCustomer(ctx *gin.Context) {
 	var request request.GetPlatformFeedbacksRequest
 	if ctx.ShouldBindQuery(&request) != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, nil))
@@ -80,9 +82,9 @@ func GetPlatformFeedbacksByUser(ctx *gin.Context) {
 		return
 	}
 
-	accountId, _ := strconv.Atoi(ctx.Param("id"))
+	customerId, _ := strconv.Atoi(ctx.Param("id"))
 
-	request.AccountId = &accountId
+	request.CustomerId = &customerId
 
 	res, err := service.GetPlatformFeedbacks(request, ctx)
 

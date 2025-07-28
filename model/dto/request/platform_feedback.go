@@ -1,21 +1,23 @@
 package request
 
 type GetPlatformFeedbacksRequest struct {
-	Request   SearchPaginationRequest `json:"request"`
-	AccountId *int                    `json:"account_id" form:"account_id" validate:"min=1"`
-	Rating    *int                    `json:"rating" form:"rating" validate:"min=1"`
+	Request    SearchPaginationRequest `json:"request"`
+	CustomerId *int                    `json:"customerId" form:"customerId" binding:"omitempty,gt=0"`
+	Rating     *int                    `json:"rating" form:"rating" binding:"omitempty,gt=0,max=5"`
+	PageIndex  *int                    `json:"pageIndex" form:"pageIndex" binding:"omitempty,gt=0"`
+	PageSize   *int                    `json:"pageSize" form:"pageSize" binding:"omitempty,gt=0"`
 }
 
 type CreatePlatformFeedbackRequest struct {
-	AccountId int    `json:"account_id" validate:"required, min=1"`
-	PaymentId int    `json:"payment_id" validate:"required, min=1"`
-	Content   string `json:"content" validte:"required"`
-	Rating    int    `json:"rating" validate:"required, min=1, max=5"`
+	CustomerId int    `json:"customerId" binding:"required,gt=0"`
+	PaymentId  int    `json:"paymentId" binding:"required,gt=0"`
+	Content    string `json:"content" validte:"required"`
+	Rating     int    `json:"rating" binding:"required,gt=0,max=5"`
 }
 
 type UpdatePlatformFeedbackRequest struct {
-	FeedbackId int    `json:"feedback_id" validate:"required, min=1"`
-	ActorId    int    `json:"actor_id" validate:"required, min=1"`
+	FeedbackId int    `json:"feedbackId" binding:"required,gt=0"`
+	ActorId    int    `json:"actorId" binding:"required,gt=0"`
 	Content    string `json:"content"`
 	Rating     *int   `json:"rating"`
 }

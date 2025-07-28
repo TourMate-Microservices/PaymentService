@@ -3,12 +3,12 @@ package entity
 import "time"
 
 type PlatformFeedback struct {
-	FeedbackId int       `json:"feedback_id"`
-	AccountId  int       `json:"account_id"`
-	PaymentId  int       `json:"payment_id"`
+	FeedbackId int       `json:"feedbackId"`
+	CustomerId int       `json:"customerId"`
+	PaymentId  int       `json:"paymentId"`
 	Content    string    `json:"content"`
 	Rating     int       `json:"rating"`
-	CreatedAt  time.Time `json:"created_at"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 func (p PlatformFeedback) GetPlatformFeedbackTable() string {

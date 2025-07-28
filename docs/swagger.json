@@ -33,12 +33,6 @@
                 "summary": "Get all platform feedbacks",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
-                        "in": "query"
-                    },
-                    {
                         "type": "string",
                         "description": "Search keyword",
                         "name": "keyword",
@@ -47,7 +41,7 @@
                     {
                         "type": "string",
                         "description": "Filter property",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
@@ -58,14 +52,26 @@
                     },
                     {
                         "type": "integer",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "Customer ID",
+                        "name": "customerId",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "Rating",
                         "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page index",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],
@@ -193,7 +199,7 @@
                 }
             }
         },
-        "/api/v1/platform-feedbacks/user/{id}": {
+        "/api/v1/platform-feedbacks/customer/{id}": {
             "get": {
                 "security": [
                     {
@@ -214,16 +220,10 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Account ID",
+                        "description": "Customer ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page_number",
-                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -234,7 +234,7 @@
                     {
                         "type": "string",
                         "description": "Filter property",
-                        "name": "filter_prop",
+                        "name": "filterProp",
                         "in": "query"
                     },
                     {
@@ -247,6 +247,18 @@
                         "type": "integer",
                         "description": "Rating",
                         "name": "rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page index",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],
@@ -1262,19 +1274,19 @@
         "entity.PlatformFeedback": {
             "type": "object",
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "content": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "feedback_id": {
+                "customerId": {
                     "type": "integer"
                 },
-                "payment_id": {
+                "feedbackId": {
+                    "type": "integer"
+                },
+                "paymentId": {
                     "type": "integer"
                 },
                 "rating": {
@@ -1370,22 +1382,23 @@
         "request.CreatePlatformFeedbackRequest": {
             "type": "object",
             "required": [
-                "account_id",
-                "payment_id",
+                "customerId",
+                "paymentId",
                 "rating"
             ],
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "content": {
                     "type": "string"
                 },
-                "payment_id": {
+                "customerId": {
+                    "type": "integer"
+                },
+                "paymentId": {
                     "type": "integer"
                 },
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5
                 }
             }
         },
@@ -1436,17 +1449,17 @@
         "request.UpdatePlatformFeedbackRequest": {
             "type": "object",
             "required": [
-                "actor_id",
-                "feedback_id"
+                "actorId",
+                "feedbackId"
             ],
             "properties": {
-                "actor_id": {
+                "actorId": {
                     "type": "integer"
                 },
                 "content": {
                     "type": "string"
                 },
-                "feedback_id": {
+                "feedbackId": {
                     "type": "integer"
                 },
                 "rating": {
