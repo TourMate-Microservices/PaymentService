@@ -123,6 +123,14 @@ func (r *revenueService) GetRevenueStats(req request.GetMonthlyRevenueRequest, c
 
 // GetRevenues implements businesslogic.IRevenueService.
 func (r *revenueService) GetRevenues(req request.GetRevenuesRequest, ctx context.Context) (*[]response.RevenueResponse, error) {
+	if req.PageNumber == nil {
+		*req.PageNumber = 1
+	}
+
+	if req.PageSize == nil {
+		*req.PageSize = 10
+	}
+
 	data, err := r.revenueRepo.GetRevenues(req, ctx)
 
 	var tourguideName string
