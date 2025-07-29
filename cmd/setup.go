@@ -40,6 +40,12 @@ func setupApiRoutes(logger *log.Logger, service string) {
 	// Payment API endpoints
 	api.InitializePaymentHandlerRoute(server, service)
 
+	// Platform Feedback API endpoints
+	api.InitializePlatformFeedbackHandlerRoute(server, service)
+
+	// Revenue API endpoints
+	api.InitializeRevenueHandlerRoute(server, service)
+
 	// Default URL
 	server.GET("/", func(ctx *gin.Context) {
 		ctx.Redirect(http.StatusMovedPermanently, "/swagger/index.html#")

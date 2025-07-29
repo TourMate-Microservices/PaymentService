@@ -2,9 +2,12 @@ package user
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"os"
 	"tourmate/payment-service/constant/env"
+	"tourmate/payment-service/constant/noti"
 	grpc_connect "tourmate/payment-service/infrastructure/grpc"
 	"tourmate/payment-service/infrastructure/grpc/user/pb"
 	business_logic "tourmate/payment-service/interface/business_logic"
@@ -30,13 +33,27 @@ func GenerateUserService(logger *log.Logger) (business_logic.IUserService, error
 	}, nil
 }
 
+const service string = "user"
+
 // GetUser implements businesslogic.IUserService.
 func (u *userService) GetCustomerById(ctx context.Context, req *pb.GetCustomerByIdRequest) (*pb.CustomerResponse, error) {
 	res, err := pb.NewUserServiceClient(u.cnn).GetCustomerById(ctx, req)
 
 	if err != nil {
-		u.logger.Println(err)
-		return nil, err // Return the original gRPC error for the business logic to handle
+		u.logger.Println(fmt.Sprintf(noti.GRPC_CONNECTION_ERR_MSG, service) + err.Error())
+		return nil, errors.New(noti.INTERNALL_ERR_MSG)
+	}
+
+	return res, nil
+}
+
+// GetTourGuideById implements businesslogic.IUserService.
+func (u *userService) GetTourGuideById(ctx context.Context, req *pb.GetTourGuideByIdRequest) (*pb.TourGuideResponse, error) {
+	res, err := pb.NewUserServiceClient(u.cnn).GetTourGuideById(ctx, req)
+
+	if err != nil {
+		u.logger.Println(fmt.Sprintf(noti.GRPC_CONNECTION_ERR_MSG, service) + err.Error())
+		return nil, errors.New(noti.INTERNALL_ERR_MSG)
 	}
 
 	return res, nil

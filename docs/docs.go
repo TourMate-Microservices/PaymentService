@@ -439,6 +439,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.MessageApiResponse"
                         }
                     },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Feedback"
+                        }
+                    },
                     "400": {
                         "description": "Invalid data. Please try again.",
                         "schema": {
@@ -491,6 +497,12 @@ const docTemplate = `{
                         "description": "success",
                         "schema": {
                             "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Feedback"
                         }
                     },
                     "400": {
@@ -892,8 +904,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "success",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/entity.Payment"
                         }
@@ -1204,6 +1216,538 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/payment-service/api/v1/revenues": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves revenues with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Get all revenue entries",
+                "parameters": [
+                    {
+                        "maximum": 12,
+                        "type": "integer",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageNumber",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "name": "paymentStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "tourGuideId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.RevenueResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a new revenue entry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Create a revenue record",
+                "parameters": [
+                    {
+                        "description": "Create Revenue Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateRevenueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RevenueResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/revenues/growth/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Calculates revenue growth over time",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Get growth percentage",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tour Guide ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 12,
+                        "type": "integer",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "tourGuideId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RevenueGrowthPercentageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/revenues/monthly/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves revenue grouped by month",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Get revenue by month",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tour Guide ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 12,
+                        "type": "integer",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "tourGuideId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MonthlyRevenueResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/revenues/stats/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves revenue stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Get revenue stats",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Revenue ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 12,
+                        "type": "integer",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "tourGuideId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RevenueStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/revenues/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves revenue details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Get a single revenue record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Revenue ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Revenue"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing revenue entry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Update a revenue record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Revenue ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Revenue Payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateRevenueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RevenueResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-service/api/v1/revenues{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a revenue entry by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "revenues"
+                ],
+                "summary": "Delete a revenue record",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Revenue ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data. Please try again.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "You have no rights to access this action.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "There is something wrong in the system during the process. Please try again later.",
+                        "schema": {
+                            "$ref": "#/definitions/response.MessageApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1292,6 +1836,38 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "rating": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.Revenue": {
+            "type": "object",
+            "properties": {
+                "actualReceived": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "invoiceId": {
+                    "type": "integer"
+                },
+                "paymentId": {
+                    "type": "integer"
+                },
+                "paymentStatus": {
+                    "type": "boolean"
+                },
+                "platformCommission": {
+                    "type": "number"
+                },
+                "revenueId": {
+                    "type": "integer"
+                },
+                "totalAmount": {
+                    "type": "number"
+                },
+                "tourGuideId": {
                     "type": "integer"
                 }
             }
@@ -1404,6 +1980,41 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateRevenueRequest": {
+            "type": "object",
+            "required": [
+                "actualReceived",
+                "invoiceId",
+                "paymentId",
+                "paymentStatus",
+                "platformCommission",
+                "totalAmount",
+                "tourGuideId"
+            ],
+            "properties": {
+                "actualReceived": {
+                    "type": "number"
+                },
+                "invoiceId": {
+                    "type": "integer"
+                },
+                "paymentId": {
+                    "type": "integer"
+                },
+                "paymentStatus": {
+                    "type": "boolean"
+                },
+                "platformCommission": {
+                    "type": "number"
+                },
+                "totalAmount": {
+                    "type": "number"
+                },
+                "tourGuideId": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.RemoveFeedbackRequest": {
             "type": "object",
             "required": [
@@ -1469,11 +2080,72 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateRevenueRequest": {
+            "type": "object",
+            "properties": {
+                "actualReceived": {
+                    "type": "number"
+                },
+                "invoiceId": {
+                    "type": "integer"
+                },
+                "paymentId": {
+                    "type": "integer"
+                },
+                "paymentStatus": {
+                    "type": "boolean"
+                },
+                "platformCommission": {
+                    "type": "number"
+                },
+                "revenueId": {
+                    "type": "integer"
+                },
+                "totalAmount": {
+                    "type": "number"
+                },
+                "tourGuideId": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.MessageApiResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "response.MonthlyRevenueResponse": {
+            "type": "object",
+            "properties": {
+                "completedPayments": {
+                    "type": "integer"
+                },
+                "growthPercentage": {
+                    "type": "number"
+                },
+                "month": {
+                    "type": "integer"
+                },
+                "netRevenue": {
+                    "type": "number"
+                },
+                "pendingPayments": {
+                    "type": "integer"
+                },
+                "platformFee": {
+                    "type": "number"
+                },
+                "totalRecords": {
+                    "type": "integer"
+                },
+                "totalRevenue": {
+                    "type": "number"
+                },
+                "year": {
+                    "type": "integer"
                 }
             }
         },
@@ -1518,6 +2190,81 @@ const docTemplate = `{
                 },
                 "serviceName": {
                     "type": "string"
+                }
+            }
+        },
+        "response.RevenueGrowthPercentageResponse": {
+            "type": "object",
+            "properties": {
+                "growthPercentage": {
+                    "type": "number"
+                }
+            }
+        },
+        "response.RevenueResponse": {
+            "type": "object",
+            "properties": {
+                "actualReceived": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "invoiceId": {
+                    "type": "integer"
+                },
+                "paymentId": {
+                    "type": "integer"
+                },
+                "paymentStatus": {
+                    "type": "boolean"
+                },
+                "platformCommission": {
+                    "type": "number"
+                },
+                "revenueId": {
+                    "type": "integer"
+                },
+                "totalAmount": {
+                    "type": "number"
+                },
+                "tourGuideId": {
+                    "type": "integer"
+                },
+                "tourGuideName": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.RevenueStatusResponse": {
+            "type": "object",
+            "properties": {
+                "completedPayments": {
+                    "type": "integer"
+                },
+                "monthlyGrowth": {
+                    "type": "number"
+                },
+                "netRevenue": {
+                    "type": "number"
+                },
+                "pendingPayments": {
+                    "type": "integer"
+                },
+                "platformFee": {
+                    "type": "number"
+                },
+                "revenueList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RevenueResponse"
+                    }
+                },
+                "totalRecords": {
+                    "type": "integer"
+                },
+                "totalRevenue": {
+                    "type": "number"
                 }
             }
         },

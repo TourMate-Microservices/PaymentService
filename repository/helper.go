@@ -23,7 +23,7 @@ func generateCountTotalRecordsQuery(table, condition string) string {
 // Generate query based on demand
 func generateRetrieveQuery(table, condition string, limitAmount, pageNumber int, isGetCount bool) string {
 	if isGetCount {
-		return "SELECT COUNT(*) FROM " + table + condition
+		return "SELECT COUNT(*) FROM " + table + " " + condition
 	}
 
 	// SELECT * FROM Payment LIMIT 10 OFFSET 0  ORDER BY created_at ASC

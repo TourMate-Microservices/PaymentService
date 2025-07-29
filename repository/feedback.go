@@ -52,23 +52,25 @@ func (f *feedbackRepo) GetFeedbacksDetailByService(serviceId int, ctx context.Co
 }
 
 // CreateFeedback implements repo.IFeedbackRepo.
-func (f *feedbackRepo) CreateFeedback(feedback entity.Feedback, ctx context.Context) error {
+func (f *feedbackRepo) CreateFeedback(feedback entity.Feedback, ctx context.Context) (int, error) {
 	var query string = "INSERT INTO " + feedback.GetFeedbackTable() +
 		" (customerId, serviceId, tourGuideId, createdDate, " +
 		"content, rating, isDeleted, " +
 		"updatedAt, invoiceId) " +
+		"OUTPUT INSERTED.feedbackId " +
 		"values (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)"
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, feedback.GetFeedbackTable()) + "CreateFeedback - "
 
-	if _, err := f.db.Exec(query, feedback.CustomerId, feedback.ServiceId, feedback.TourGuideId, feedback.CreatedDate,
+	var res int
+	if err := f.db.QueryRow(query, feedback.CustomerId, feedback.ServiceId, feedback.TourGuideId, feedback.CreatedDate,
 		feedback.Content, feedback.Rating, feedback.IsDeleted,
-		feedback.UpdatedAt, feedback.InvoiceId); err != nil {
+		feedback.UpdatedAt, feedback.InvoiceId).Scan(&res); err != nil {
 
 		f.logger.Println(errLogMsg + err.Error())
-		return errors.New(noti.INTERNALL_ERR_MSG)
+		return 0, errors.New(noti.INTERNALL_ERR_MSG)
 	}
 
-	return nil
+	return 0, nil
 }
 
 // GetFeedbackById implements repo.IFeedbackRepo.

@@ -141,23 +141,23 @@ func (f *feedbackService) GetTourGuideFeedbacks(req request.GetTourGuideFeedback
 }
 
 // CreateFeedback implements businesslogic.IFeedbackService.
-func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) error {
+func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx context.Context) (*entity.Feedback, error) {
 	// Verify user data (implement later)
 	user, err := f.userService.GetCustomerById(ctx, &user_pb.GetCustomerByIdRequest{
 		CustomerId: int32(req.CustomerId),
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if user == nil {
-		return errors.New(noti.GENERIC_ERROR_WARN_MSG)
+		return nil, errors.New(noti.GENERIC_ERROR_WARN_MSG)
 	}
 
 	// Insert to database
 	var curTime time.Time = time.Now()
-	return f.feedbackRepo.CreateFeedback(entity.Feedback{
+	var feedback entity.Feedback = entity.Feedback{
 		CustomerId:  req.CustomerId,
 		ServiceId:   req.ServiceId,
 		TourGuideId: req.TourGuideId,
@@ -167,7 +167,13 @@ func (f *feedbackService) CreateFeedback(req request.CreateFeedbackRequest, ctx 
 		IsDeleted:   false,
 		CreatedDate: curTime,
 		UpdatedAt:   curTime,
-	}, ctx)
+	}
+
+	id, err := f.feedbackRepo.CreateFeedback(feedback, ctx)
+
+	feedback.FeedbackId = id
+
+	return &feedback, err
 }
 
 // GetFeedbackById implements businesslogic.IFeedbackService.
@@ -215,10 +221,10 @@ func (f *feedbackService) RemoveFeedback(req request.RemoveFeedbackRequest, ctx 
 }
 
 // UpdateFeedback implements businesslogic.IFeedbackService.
-func (f *feedbackService) UpdateFeedback(req request.UpdateFeedbackRequest, ctx context.Context) error {
+func (f *feedbackService) UpdateFeedback(req request.UpdateFeedbackRequest, ctx context.Context) (*entity.Feedback, error) {
 	feedback, err := f.feedbackRepo.GetFeedbackById(req.Request.FeedbackId, ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Verify user data (implement later)
@@ -232,7 +238,7 @@ func (f *feedbackService) UpdateFeedback(req request.UpdateFeedbackRequest, ctx 
 
 	feedback.UpdatedAt = time.Now()
 
-	return f.feedbackRepo.UpdateFeedback(*feedback, ctx)
+	return feedback, f.feedbackRepo.UpdateFeedback(*feedback, ctx)
 }
 
 func assignFilterProperty(filterProp string) string {

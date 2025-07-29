@@ -6,4 +6,6 @@ const (
 	REDIRECT string = "REDIRECT"
 
 	INFORM string = "INFORM"
+
+	CREATE_ACTION string = "CREATE_ACTION"
 )
