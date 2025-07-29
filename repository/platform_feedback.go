@@ -50,7 +50,7 @@ func (p *platformFeedbackRepo) GetPlatformFeedbackById(id int, ctx context.Conte
 
 	if err := p.db.QueryRow(query, id).Scan(
 		&res.FeedbackId, &res.CustomerId, &res.PaymentId,
-		&res.Rating, &res.Content, &res.CreatedAt); err != nil {
+		&res.Content, &res.Rating, &res.CreatedAt); err != nil {
 
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -101,7 +101,7 @@ func (p *platformFeedbackRepo) GetPlatformFeedbacks(req request.GetPlatformFeedb
 		var x entity.PlatformFeedback
 		if err := rows.Scan(
 			&x.FeedbackId, &x.CustomerId, &x.PaymentId,
-			&x.Rating, &x.Content, &x.CreatedAt,
+			&x.Content, &x.Rating, &x.CreatedAt,
 		); err != nil {
 
 			p.logger.Println(errLogMsg + err.Error())
