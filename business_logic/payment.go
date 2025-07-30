@@ -371,6 +371,10 @@ func (p *paymentService) CreatePayosTransaction(req request.CreatePayosTransacti
 	orderCode := int64(utils.GenerateNumber())
 	p.logger.Printf("Generated OrderCode: %d", orderCode)
 
+	returnUrl := os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS)
+	cancelUrl := os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL)
+	p.logger.Printf("PayOS Request: Amount=%d, OrderCode=%d, Description=%s, ReturnUrl=%s, CancelUrl=%s", amount, orderCode, description, returnUrl, cancelUrl)
+	p.logger.Printf("PayOS Items: %+v", []payos.Item{{Name: description, Quantity: 1, Price: amount}})
 	data, err := payos.CreatePaymentLink(payos.CheckoutRequestType{
 		Amount:    amount,
 		OrderCode: orderCode,
@@ -382,8 +386,8 @@ func (p *paymentService) CreatePayosTransaction(req request.CreatePayosTransacti
 			},
 		},
 		Description: description,
-		ReturnUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_SUCCESS),
-		CancelUrl:   os.Getenv(payment_env.PAYMENT_CALLBACK_CANCEL),
+		ReturnUrl:   returnUrl,
+		CancelUrl:   cancelUrl,
 	})
 
 	if err != nil {
