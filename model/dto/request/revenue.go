@@ -1,5 +1,7 @@
 package request
 
+// TourGuideId int `json:"tourGuideId" form:"tourGuideId" binding:"required,gt=0"`
+
 type GetRevenuesRequest struct {
 	TourGuideId   int   `json:"tourGuideId" form:"tourGuideId" binding:"required,gt=0"`
 	Year          *int  `json:"year" form:"year" binding:"omitempty,gt=2020"`
@@ -10,7 +12,7 @@ type GetRevenuesRequest struct {
 }
 
 type GetMonthlyRevenueRequest struct {
-	TourGuideId int `json:"tourGuideId" form:"tourGuideId" binding:"required,gt=0"`
+	TourGuideId int
 	Year        int `json:"year" form:"year" binding:"required,gt=2020"`
 	Month       int `json:"month" form:"month" binding:"required,gt=0,max=12"`
 }

@@ -1389,8 +1389,7 @@
                     {
                         "type": "integer",
                         "name": "tourGuideId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -1463,8 +1462,7 @@
                     {
                         "type": "integer",
                         "name": "tourGuideId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -1537,8 +1535,7 @@
                     {
                         "type": "integer",
                         "name": "tourGuideId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",

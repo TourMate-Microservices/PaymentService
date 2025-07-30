@@ -230,7 +230,7 @@ func (r *revenueService) GetGrowthPercentage(req request.GetMonthlyRevenueReques
 		return response.RevenueGrowthPercentageResponse{}, err
 	}
 
-	if previousMonth == 0 {
+	if previousMonthAmount == 0 {
 		return response.RevenueGrowthPercentageResponse{}, nil
 	}
 

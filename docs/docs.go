@@ -1391,8 +1391,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "name": "tourGuideId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -1465,8 +1464,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "name": "tourGuideId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -1539,8 +1537,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "name": "tourGuideId",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",

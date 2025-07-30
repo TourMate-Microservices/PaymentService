@@ -9,6 +9,7 @@ type GetPaymentsRequest struct {
 
 type CreatePaymentRequest struct {
 	CustomerId    int     `json:"customerId" binding:"required,gt=0"`
+	TourGuideId   int     `json:"tourGuideId" binding:"required,gt=0"`
 	InvoiceId     int     `json:"invoiceId" binding:"required,gt=0"`
 	ServiceId     int     `json:"serviceId" binding:"required,gt=0"`
 	Price         float64 `json:"price" binding:"required,gt=0"`

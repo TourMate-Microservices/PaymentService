@@ -35,6 +35,7 @@ type paymentService struct {
 	logger      *log.Logger
 	userService business_logic.IUserService
 	tourService business_logic.ITourService
+	revenueRepo repo.IRevenueRepo
 	paymentRepo repo.IPaymentRepo
 }
 
@@ -43,6 +44,7 @@ func InitializePaymentService(db *sql.DB, userService business_logic.IUserServic
 		logger:      logger,
 		userService: userService,
 		tourService: tourService,
+		revenueRepo: repository.InitializeRevenueRepo(db, logger),
 		paymentRepo: repository.InitializePaymentRepo(db, logger),
 	}
 }
@@ -127,17 +129,31 @@ func (p *paymentService) UpdatePayment(req request.UpdatePaymentRequest, ctx con
 
 // CreatePayment implements businesslogic.IPaymentService.
 func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx context.Context) (*entity.Payment, error) {
+	var curTime time.Time = time.Now()
 	res, err := p.paymentRepo.CreatePayment(entity.Payment{
 		CustomerId:    req.CustomerId,
 		InvoiceId:     req.InvoiceId,
 		ServiceId:     req.ServiceId,
 		Price:         req.Price,
 		PaymentMethod: req.PaymentMethod,
-		CreatedAt:     time.Now(),
+		CreatedAt:     curTime,
 		Status:        domain_status.PAYMENT_PAID,
 	}, ctx)
 
 	if err != nil {
+		return nil, err
+	}
+
+	if _, err := p.revenueRepo.CreateRevenue(entity.Revenue{
+		PaymentId:          res.PaymentId,
+		TourGuideId:        req.TourGuideId,
+		InvoiceId:          req.InvoiceId,
+		TotalAmount:        req.Price,
+		ActualReceived:     req.Price * 0.85,
+		PlatformCommission: req.Price * 0.15,
+		PaymentStatus:      true,
+		CreatedAt:          curTime,
+	}, ctx); err != nil {
 		return nil, err
 	}
 

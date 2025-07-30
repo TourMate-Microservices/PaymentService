@@ -1325,7 +1325,6 @@ paths:
         type: integer
       - in: query
         name: tourGuideId
-        required: true
         type: integer
       - in: query
         name: year
@@ -1374,7 +1373,6 @@ paths:
         type: integer
       - in: query
         name: tourGuideId
-        required: true
         type: integer
       - in: query
         name: year
@@ -1423,7 +1421,6 @@ paths:
         type: integer
       - in: query
         name: tourGuideId
-        required: true
         type: integer
       - in: query
         name: year
