@@ -60,6 +60,27 @@ definitions:
       rating:
         type: integer
     type: object
+  entity.Revenue:
+    properties:
+      actualReceived:
+        type: number
+      createdAt:
+        type: string
+      invoiceId:
+        type: integer
+      paymentId:
+        type: integer
+      paymentStatus:
+        type: boolean
+      platformCommission:
+        type: number
+      revenueId:
+        type: integer
+      totalAmount:
+        type: number
+      tourGuideId:
+        type: integer
+    type: object
   pb.TourServiceRatingResponse:
     properties:
       rating:
@@ -135,6 +156,31 @@ definitions:
     - paymentId
     - rating
     type: object
+  request.CreateRevenueRequest:
+    properties:
+      actualReceived:
+        type: number
+      invoiceId:
+        type: integer
+      paymentId:
+        type: integer
+      paymentStatus:
+        type: boolean
+      platformCommission:
+        type: number
+      totalAmount:
+        type: number
+      tourGuideId:
+        type: integer
+    required:
+    - actualReceived
+    - invoiceId
+    - paymentId
+    - paymentStatus
+    - platformCommission
+    - totalAmount
+    - tourGuideId
+    type: object
   request.RemoveFeedbackRequest:
     properties:
       actorId:
@@ -178,10 +224,50 @@ definitions:
     - actorId
     - feedbackId
     type: object
+  request.UpdateRevenueRequest:
+    properties:
+      actualReceived:
+        type: number
+      invoiceId:
+        type: integer
+      paymentId:
+        type: integer
+      paymentStatus:
+        type: boolean
+      platformCommission:
+        type: number
+      revenueId:
+        type: integer
+      totalAmount:
+        type: number
+      tourGuideId:
+        type: integer
+    type: object
   response.MessageApiResponse:
     properties:
       message:
         type: string
+    type: object
+  response.MonthlyRevenueResponse:
+    properties:
+      completedPayments:
+        type: integer
+      growthPercentage:
+        type: number
+      month:
+        type: integer
+      netRevenue:
+        type: number
+      pendingPayments:
+        type: integer
+      platformFee:
+        type: number
+      totalRecords:
+        type: integer
+      totalRevenue:
+        type: number
+      year:
+        type: integer
     type: object
   response.PaginationDataResponse:
     properties:
@@ -211,6 +297,55 @@ definitions:
         type: integer
       serviceName:
         type: string
+    type: object
+  response.RevenueGrowthPercentageResponse:
+    properties:
+      growthPercentage:
+        type: number
+    type: object
+  response.RevenueResponse:
+    properties:
+      actualReceived:
+        type: number
+      createdAt:
+        type: string
+      invoiceId:
+        type: integer
+      paymentId:
+        type: integer
+      paymentStatus:
+        type: boolean
+      platformCommission:
+        type: number
+      revenueId:
+        type: integer
+      totalAmount:
+        type: number
+      tourGuideId:
+        type: integer
+      tourGuideName:
+        type: string
+    type: object
+  response.RevenueStatusResponse:
+    properties:
+      completedPayments:
+        type: integer
+      monthlyGrowth:
+        type: number
+      netRevenue:
+        type: number
+      pendingPayments:
+        type: integer
+      platformFee:
+        type: number
+      revenueList:
+        items:
+          $ref: '#/definitions/response.RevenueResponse'
+        type: array
+      totalRecords:
+        type: integer
+      totalRevenue:
+        type: number
     type: object
   response.UrlResponse:
     properties:
@@ -527,6 +662,10 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/response.MessageApiResponse'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Feedback'
         "400":
           description: Invalid data. Please try again.
           schema:
@@ -562,6 +701,10 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/response.MessageApiResponse'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Feedback'
         "400":
           description: Invalid data. Please try again.
           schema:
@@ -822,8 +965,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: success
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/entity.Payment'
         "400":
@@ -998,6 +1141,355 @@ paths:
       summary: Get payment with service information by ID
       tags:
       - payments
+  /payment-service/api/v1/revenues:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves revenues with optional filters
+      parameters:
+      - in: query
+        maximum: 12
+        name: month
+        type: integer
+      - in: query
+        name: pageNumber
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
+      - in: query
+        name: paymentStatus
+        type: boolean
+      - in: query
+        name: tourGuideId
+        required: true
+        type: integer
+      - in: query
+        name: year
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.RevenueResponse'
+            type: array
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all revenue entries
+      tags:
+      - revenues
+    post:
+      consumes:
+      - application/json
+      description: Adds a new revenue entry
+      parameters:
+      - description: Create Revenue Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateRevenueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RevenueResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a revenue record
+      tags:
+      - revenues
+  /payment-service/api/v1/revenues/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves revenue details by ID
+      parameters:
+      - description: Revenue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Revenue'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a single revenue record
+      tags:
+      - revenues
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing revenue entry
+      parameters:
+      - description: Revenue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Revenue Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateRevenueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RevenueResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a revenue record
+      tags:
+      - revenues
+  /payment-service/api/v1/revenues/growth/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Calculates revenue growth over time
+      parameters:
+      - description: Tour Guide ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        maximum: 12
+        name: month
+        required: true
+        type: integer
+      - in: query
+        name: tourGuideId
+        required: true
+        type: integer
+      - in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RevenueGrowthPercentageResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get growth percentage
+      tags:
+      - revenues
+  /payment-service/api/v1/revenues/monthly/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves revenue grouped by month
+      parameters:
+      - description: Tour Guide ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        maximum: 12
+        name: month
+        required: true
+        type: integer
+      - in: query
+        name: tourGuideId
+        required: true
+        type: integer
+      - in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MonthlyRevenueResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get revenue by month
+      tags:
+      - revenues
+  /payment-service/api/v1/revenues/stats/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves revenue stats
+      parameters:
+      - description: Revenue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        maximum: 12
+        name: month
+        required: true
+        type: integer
+      - in: query
+        name: tourGuideId
+        required: true
+        type: integer
+      - in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RevenueStatusResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get revenue stats
+      tags:
+      - revenues
+  /payment-service/api/v1/revenues{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a revenue entry by ID
+      parameters:
+      - description: Revenue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "400":
+          description: Invalid data. Please try again.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "401":
+          description: You have no rights to access this action.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+        "500":
+          description: There is something wrong in the system during the process.
+            Please try again later.
+          schema:
+            $ref: '#/definitions/response.MessageApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a revenue record
+      tags:
+      - revenues
 schemes:
 - http
 - https

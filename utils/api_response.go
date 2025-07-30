@@ -23,7 +23,7 @@ func ProcessResponse(data response.ApiResponse) {
 		return
 	}
 
-	processSuccessResponse(data.Data1, data.Context)
+	processSuccessResponse(data.Data1, data.PostType, data.Context)
 }
 
 func GenerateInvalidRequestAndSystemProblemModel(ctx *gin.Context, err error) response.ApiResponse {
@@ -90,8 +90,18 @@ func processInformResponse(message interface{}, ctx *gin.Context) {
 	})
 }
 
-func processSuccessResponse(data interface{}, ctx *gin.Context) {
-	ctx.IndentedJSON(http.StatusOK, data)
+func processSuccessResponse(data interface{}, postType string, ctx *gin.Context) {
+	var codeResponse int
+	switch postType {
+	case action_type.NON_POST:
+		codeResponse = http.StatusOK
+	case action_type.CREATE_ACTION:
+		codeResponse = http.StatusCreated
+	default:
+		codeResponse = http.StatusOK
+	}
+
+	ctx.IndentedJSON(codeResponse, data)
 }
 
 func isErrorTypeOfUndefined(err error) bool {

@@ -69,7 +69,7 @@ func GetPaymentById(ctx *gin.Context) {
 		return
 	}
 
-	id, _ := strconv.Atoi(ctx.Query("id"))
+	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	res, err := service.GetPaymentById(id, ctx)
 
@@ -169,7 +169,7 @@ func UpdatePayment(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Param        request body request.CreatePaymentRequest true "Create Payment Request"
-// @Success 200 {object} entity.Payment "success"
+// @Success 201 {object} entity.Payment
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -187,15 +187,14 @@ func CreatePayment(ctx *gin.Context) {
 		return
 	}
 
-	// Create payment and get the created payment back
-	payment, err := service.CreatePayment(request, ctx)
+	res, err := service.CreatePayment(request, ctx)
 
 	utils.ProcessResponse(response.ApiResponse{
-		Data1:    payment,
-		Data2:    payment,
+		Data1:    res,
+		Data2:    res,
 		ErrMsg:   err,
 		Context:  ctx,
-		PostType: action_type.NON_POST,
+		PostType: action_type.CREATE_ACTION,
 	})
 }
 

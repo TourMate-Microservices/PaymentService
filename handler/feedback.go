@@ -142,6 +142,7 @@ func GetFeedbackById(ctx *gin.Context) {
 // @Security     BearerAuth
 // @Param        request body request.CreateFeedbackRequest true "Create Feedback Request"
 // @Success 200 {object} response.MessageApiResponse "success"
+// @Success 201 {object} entity.Feedback
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -159,10 +160,14 @@ func CreateFeedback(ctx *gin.Context) {
 		return
 	}
 
+	res, err := service.CreateFeedback(request, ctx)
+
 	utils.ProcessResponse(response.ApiResponse{
-		ErrMsg:   service.CreateFeedback(request, ctx),
+		Data1:    res,
+		Data2:    res,
+		ErrMsg:   err,
 		Context:  ctx,
-		PostType: action_type.NON_POST,
+		PostType: action_type.CREATE_ACTION,
 	})
 }
 
@@ -174,6 +179,7 @@ func CreateFeedback(ctx *gin.Context) {
 // @Security     BearerAuth
 // @Param        request body request.UpdateFeedbackRequest true "Update Feedback Request"
 // @Success 200 {object} response.MessageApiResponse "success"
+// @Success 201 {object} entity.Feedback
 // @Failure 401 {object} response.MessageApiResponse "You have no rights to access this action."
 // @Failure 400 {object} response.MessageApiResponse "Invalid data. Please try again."
 // @Failure 500 {object} response.MessageApiResponse "There is something wrong in the system during the process. Please try again later."
@@ -191,8 +197,12 @@ func UpdateFeedback(ctx *gin.Context) {
 		return
 	}
 
+	res, err := service.UpdateFeedback(request, ctx)
+
 	utils.ProcessResponse(response.ApiResponse{
-		ErrMsg:   service.UpdateFeedback(request, ctx),
+		Data1:    res,
+		Data2:    res,
+		ErrMsg:   err,
 		Context:  ctx,
 		PostType: action_type.NON_POST,
 	})
@@ -298,7 +308,7 @@ func GetTourGuideFeedbacks(ctx *gin.Context) {
 		request.PageIndex = 1
 	}
 
-	// Initialize business logic service  
+	// Initialize business logic service
 	service, err := business_logic.GenerateFeedbackService()
 	if err != nil {
 		utils.ProcessResponse(utils.GenerateInvalidRequestAndSystemProblemModel(ctx, err))

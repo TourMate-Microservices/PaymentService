@@ -9,6 +9,10 @@ message GetCustomerByIdRequest {
     int32 customerId = 1;
 }
 
+message GetTourGuideByIdRequest {
+    int32 tourGuideId = 1;
+}
+
 message CustomerResponse {
     int32 customerId = 1;
     string fullName = 2;
@@ -18,9 +22,20 @@ message CustomerResponse {
     string email = 6;
 }
 
+message TourGuideResponse {
+    int32 tourGuideId = 1;
+    string fullName = 2;
+    string image = 3;
+    int32 yearOfExperience = 4;
+    string description = 5;
+    string company = 6;
+    string phone = 7;
+}
+
 // gRPC service definition
 service UserService {
     rpc GetCustomerById(GetCustomerByIdRequest) returns (CustomerResponse);
+    rpc GetTourGuideById(GetTourGuideByIdRequest) returns (TourGuideResponse);
 }
 
 
