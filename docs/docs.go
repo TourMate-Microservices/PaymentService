@@ -1919,7 +1919,8 @@ const docTemplate = `{
                 "invoiceId",
                 "paymentMethod",
                 "price",
-                "serviceId"
+                "serviceId",
+                "tourGuideId"
             ],
             "properties": {
                 "customerId": {
@@ -1935,6 +1936,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "serviceId": {
+                    "type": "integer"
+                },
+                "tourGuideId": {
                     "type": "integer"
                 }
             }

@@ -123,12 +123,15 @@ definitions:
         type: number
       serviceId:
         type: integer
+      tourGuideId:
+        type: integer
     required:
     - customerId
     - invoiceId
     - paymentMethod
     - price
     - serviceId
+    - tourGuideId
     type: object
   request.CreatePayosTransactionRequest:
     properties:

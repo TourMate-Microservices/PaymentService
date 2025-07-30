@@ -80,7 +80,7 @@ func (r *revenueRepo) GetRevenues(req request.GetRevenuesRequest, ctx context.Co
 func (r *revenueRepo) GetRevenuesByMonth(tourGuideId int, year int, month int, ctx context.Context) (*[]entity.Revenue, error) {
 	var table string = entity.Revenue{}.GetRevenueTable()
 	var errLogMsg string = fmt.Sprintf(noti.REPO_ERR_MSG, table) + "GetRevenuesByMonth - "
-	var query string = "SELECT * FROM " + table + " WHERE tourGuideId = @p1 AND YEAR(createdAt) = @p2 AND MONTH(createdAt) = @p3 ORDER BY created_at DESC"
+	var query string = "SELECT * FROM " + table + " WHERE tourGuideId = @p1 AND YEAR(createdAt) = @p2 AND MONTH(createdAt) = @p3 ORDER BY createdAt DESC"
 	var internalErr error = errors.New(noti.INTERNALL_ERR_MSG)
 
 	rows, err := r.db.Query(query, tourGuideId, year, month)

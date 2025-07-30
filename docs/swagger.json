@@ -1917,7 +1917,8 @@
                 "invoiceId",
                 "paymentMethod",
                 "price",
-                "serviceId"
+                "serviceId",
+                "tourGuideId"
             ],
             "properties": {
                 "customerId": {
@@ -1933,6 +1934,9 @@
                     "type": "number"
                 },
                 "serviceId": {
+                    "type": "integer"
+                },
+                "tourGuideId": {
                     "type": "integer"
                 }
             }
