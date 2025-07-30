@@ -73,6 +73,8 @@ func processSuccessPostReponse(res interface{}, postType string, ctx *gin.Contex
 		processRedirectResponse(fmt.Sprint(res), ctx)
 	case action_type.INFORM:
 		processInformResponse(res, ctx)
+	case action_type.CREATE_ACTION:
+		ctx.IndentedJSON(http.StatusCreated, res)
 	default:
 		ctx.IndentedJSON(http.StatusOK, response.MessageApiResponse{
 			Message: "success",
