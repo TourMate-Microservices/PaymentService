@@ -23,7 +23,7 @@ func corsConfig(server *gin.Engine) {
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"}, // Allow all origins, or specify ["http://example.com"]
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
+	   AllowHeaders:     []string{"Content-Type", "Authorization", "ngrok-skip-browser-warning"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
