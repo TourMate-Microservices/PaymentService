@@ -151,7 +151,7 @@ func (p *paymentService) CreatePayment(req request.CreatePaymentRequest, ctx con
 		TotalAmount:        req.Price,
 		ActualReceived:     req.Price * 0.85,
 		PlatformCommission: req.Price * 0.15,
-		PaymentStatus:      true,
+		PaymentStatus:      false,
 		CreatedAt:          curTime,
 	}, ctx); err != nil {
 		return nil, err
